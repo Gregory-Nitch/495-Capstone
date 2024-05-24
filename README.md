@@ -1,2 +1,3 @@
-# 495-Capstone
-TBD
+# PyFighter
+
+An endless runner in spaaaacceee!
