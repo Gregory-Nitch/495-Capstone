@@ -1,13 +1,13 @@
 """Player object for the game."""
 
-import actor
+from models.actor import Actor
 
 
-class Player(actor.Actor):
+class Player(Actor):
     """Player object for the game"""
 
-    def __init__(self, x, y, hp, speed):
-        super().__init__(x, y, hp, speed)
+    def __init__(self, pos, hp, speed, img, offset):
+        super().__init__(pos, hp, speed, img, offset)
         self.fire_rate = 1
         self.missile_cout = 0
         self.score = 0
