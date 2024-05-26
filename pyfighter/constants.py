@@ -3,7 +3,7 @@ Such as player ship size, asteroid size and loads images to use in
 main."""
 
 # Offset = img width / 2 and img height / 2
-IMG_OFFSETS = {"player": (49, 37)}
+IMG_OFFSETS = {"player": {"x": 49, "y": 37}}
 
 # Note: use convert alpha for images with transparency (not done here)
 IMG_PATHS = {

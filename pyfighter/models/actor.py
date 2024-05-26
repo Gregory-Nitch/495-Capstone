@@ -15,5 +15,5 @@ class Actor:
         """Draws the actor on the screen"""
 
         screen.blit(
-            self.img, (self.pos.x - self.offset[0], self.pos.y - self.offset[1])
+            self.img, (self.pos.x - self.offset["x"], self.pos.y - self.offset["y"])
         )
