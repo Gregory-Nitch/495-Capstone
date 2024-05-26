@@ -17,7 +17,7 @@ from constants import IMG_PATHS, IMG_OFFSETS
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 828
 PLAYER_BUFFER = 150
-SCREEN = pygame.display.set_mode((1280, 828))
+SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 CLOCK = pygame.time.Clock()
 BG_IMG = pygame.image.load(IMG_PATHS["background"]).convert()
 PLYR_IMG = pygame.image.load(IMG_PATHS["player"]).convert_alpha()
