@@ -161,5 +161,4 @@ cython_debug/
 
 
 # Base Python
-**/__pycache__/
-*.pyc
+__pycache__
