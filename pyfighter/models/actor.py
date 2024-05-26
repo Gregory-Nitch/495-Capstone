@@ -1,7 +1,5 @@
 """Base class for actors in the game"""
 
-import pygame
-
 
 class Actor:
     """An actor in the game space."""
@@ -10,7 +8,7 @@ class Actor:
         self.pos = pos
         self.hp = hp
         self.speed = speed
-        self.img = pygame.image.load(img).convert_alpha()
+        self.img = img
         self.offset = offset
 
     def draw(self, screen):

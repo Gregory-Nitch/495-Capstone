@@ -17,6 +17,7 @@ from constants import IMG_PATHS, IMG_OFFSETS
 SCREEN = pygame.display.set_mode((1280, 828))
 CLOCK = pygame.time.Clock()
 BG_IMG = pygame.image.load(IMG_PATHS["background"]).convert()
+PLYR_IMG = pygame.image.load(IMG_PATHS["player"]).convert_alpha()
 
 
 def draw_background():
@@ -34,7 +35,7 @@ def main():
     dt = 0
 
     pos = pygame.Vector2((SCREEN.get_width() / 2), (SCREEN.get_height() / 2))
-    player = Player(pos, 3, 300, IMG_PATHS["player"], IMG_OFFSETS["player"])
+    player = Player(pos, 3, 300, PLYR_IMG, IMG_OFFSETS["player"])
 
     while running:
         # poll for events
