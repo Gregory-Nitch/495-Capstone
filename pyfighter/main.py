@@ -11,18 +11,29 @@ Authors:
 # Example file showing a basic pygame "game loop"
 import pygame
 
+# Globals
+SCREEN = pygame.display.set_mode((1280, 828))
+CLOCK = pygame.time.Clock()
+BG_IMAGE = pygame.image.load(
+    "./pyfighter/assets/kenney_space-shooter-redux/Backgrounds/bg_merged.png"
+).convert()
+
+
+def draw_background():
+    """Draws the background of the game and the HUD base."""
+    pygame.draw.rect(SCREEN, "black", (0, 0, SCREEN.get_width(), 60))
+    SCREEN.blit(BG_IMAGE, (0, 60))
+
 
 def main():
     """Main game loop"""
 
     # pygame setup
     pygame.init()
-    screen = pygame.display.set_mode((1280, 720))
-    clock = pygame.time.Clock()
     running = True
     dt = 0
 
-    player_pos = pygame.Vector2(screen.get_width() / 2, screen.get_height() / 2)
+    player_pos = pygame.Vector2(SCREEN.get_width() / 2, SCREEN.get_height() / 2)
 
     while running:
         # poll for events
@@ -31,19 +42,19 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-        # fill the screen with a color to wipe away anything from last frame
-        screen.fill("black")
+        # fill the screen with background to wipe away anything from last frame
+        draw_background()
 
-        pygame.draw.circle(screen, "red", player_pos, 40)
+        pygame.draw.circle(SCREEN, "red", player_pos, 40)
 
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_w]:
+        if keys[pygame.K_UP]:
             player_pos.y -= 300 * dt
-        if keys[pygame.K_s]:
+        if keys[pygame.K_DOWN]:
             player_pos.y += 300 * dt
-        if keys[pygame.K_a]:
+        if keys[pygame.K_LEFT]:
             player_pos.x -= 300 * dt
-        if keys[pygame.K_d]:
+        if keys[pygame.K_RIGHT]:
             player_pos.x += 300 * dt
 
         # flip() the display to put your work on screen
@@ -52,7 +63,7 @@ def main():
         # limits FPS to 60
         # dt is delta time in seconds since last frame, used for framerate-
         # independent physics.
-        dt = clock.tick(60) / 1000
+        dt = CLOCK.tick(60) / 1000
 
     pygame.quit()
 
