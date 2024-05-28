@@ -17,7 +17,7 @@ from models.player import Player
 
 # Globals
 SCREEN_WIDTH = 1280
-SCREEN_HEIGHT = 828
+SCREEN_HEIGHT = 1084
 PLAYER_BUFFER = 150
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 CLOCK = pygame.time.Clock()
