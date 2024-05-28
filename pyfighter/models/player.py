@@ -6,7 +6,7 @@ from models.actor import Actor
 class Player(Actor):
     """Player object for the game"""
 
-    def __init__(self, pos, hp, speed, img, offset):
+    def __init__(self, pos, hp, speed, img, offset) -> None:
         super().__init__(pos, hp, speed, img, offset)
         self.fire_rate = 1
         self.missile_count = 0

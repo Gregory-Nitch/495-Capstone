@@ -4,14 +4,14 @@
 class Actor:
     """An actor in the game space."""
 
-    def __init__(self, pos, hp, speed, img, offset):
+    def __init__(self, pos, hp, speed, img, offset) -> None:
         self.pos = pos
         self.hp = hp
         self.speed = speed
         self.img = img
         self.offset = offset
 
-    def draw(self, screen):
+    def draw(self, screen) -> None:
         """Draws the actor on the screen"""
 
         screen.blit(

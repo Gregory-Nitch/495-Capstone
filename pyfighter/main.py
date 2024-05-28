@@ -8,10 +8,12 @@ Authors:
     - Wheeler, Jack
 """
 
-# Example file showing a basic pygame "game loop"
+import math
+import time
 import pygame
+from constants import IMG_OFFSETS, IMG_PATHS
+from models.hud import HUD
 from models.player import Player
-from constants import IMG_PATHS, IMG_OFFSETS
 
 # Globals
 SCREEN_WIDTH = 1280
@@ -30,16 +32,20 @@ def draw_background():
     SCREEN.blit(BG_IMG, (0, 60))
 
 
-def main():
+def main() -> None:
     """Main game loop"""
 
     # pygame setup
     pygame.init()
+    pygame.font.init()
     running = True
+    start_time = time.time()
     dt = 0
+    hud_font = pygame.font.SysFont("Comic Sans MS", 30)
 
     pos = pygame.Vector2((SCREEN.get_width() / 2), (SCREEN.get_height() / 2))
     player = Player(pos, 3, 300, PLYR_IMG, IMG_OFFSETS["player"])
+    hud = HUD()
 
     while running:
         # poll for events
@@ -48,9 +54,13 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-        # fill the screen with background to wipe away anything from last frame
+        # Draw to screen here back to front
         draw_background()
         player.draw(SCREEN)
+        hud.draw(SCREEN, player, hud_font)
+
+        # Perform state change here
+        player.score = math.floor(time.time() - start_time)
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP] and player.pos.y > HUD_HEIGHT + player.offset["y"]:
