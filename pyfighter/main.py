@@ -41,7 +41,8 @@ def main() -> None:
     running = True
     start_time = time.time()
     dt = 0
-    hud_font = pygame.font.SysFont("Comic Sans MS", 30)
+    hud_font = pygame.font.SysFont("Comic Sans MS", 20)
+    control_font = pygame.font.SysFont("Comic Sans MS", 14)
 
     pos = pygame.Vector2((SCREEN.get_width() / 2), (SCREEN.get_height() / 2))
     player = Player(pos, 3, 300, PLYR_IMG, IMG_OFFSETS["player"])
@@ -57,7 +58,7 @@ def main() -> None:
         # Draw to screen here back to front
         draw_background()
         player.draw(SCREEN)
-        hud.draw(SCREEN, player, hud_font)
+        hud.draw(SCREEN, player, hud_font, control_font)
 
         # Perform state change here
         player.score = math.floor(time.time() - start_time)

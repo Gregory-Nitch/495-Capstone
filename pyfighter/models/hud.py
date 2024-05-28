@@ -11,8 +11,26 @@ class HUD:
         self.fire_rate_pos = 0
         self.missile_count_pos = 0
 
-    def draw(self, screen, player, font) -> None:
+    def draw(self, screen, player, hud_font, control_font) -> None:
         """Draws the HUD on the display"""
-        score_surface = font.render(f"Score: {player.score}", False, (255, 255, 255))
-
-        screen.blit(score_surface, (10, 10))
+        score_surface = hud_font.render(f"Score: {player.score}", True, (255, 255, 255))
+        stats_surface = hud_font.render(
+            f"Hull: {player.hp}  Thrust: {player.speed} "
+            + f" Fire Rate: {player.fire_rate}  Missiles: {player.missile_count}",
+            True,
+            (255, 255, 255),
+        )
+        control_label_surface = hud_font.render("Controls:", True, (255, 255, 255))
+        move_surface = control_font.render(
+            "Movement: Arrow Keys",
+            True,
+            (255, 255, 255),
+        )
+        fire_surface = control_font.render("Cannon: Space", True, (255, 255, 255))
+        missile_surface = control_font.render("Missile: L-Alt", True, (255, 255, 255))
+        screen.blit(score_surface, (10, 15))
+        screen.blit(stats_surface, (420, 15))
+        screen.blit(control_label_surface, (1010, 15))
+        screen.blit(move_surface, (1110, 3))
+        screen.blit(fire_surface, (1110, 20))
+        screen.blit(missile_surface, (1110, 37))
