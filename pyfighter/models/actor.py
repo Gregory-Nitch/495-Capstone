@@ -1,10 +1,13 @@
 """Base class for actors in the game"""
 
+import pygame
 
-class Actor:
+
+class Actor(pygame.sprite.Sprite):
     """An actor in the game space."""
 
     def __init__(self, pos, hp, speed, img, offset) -> None:
+        super().__init__()
         self.pos = pos
         self.hp = hp
         self.speed = speed
