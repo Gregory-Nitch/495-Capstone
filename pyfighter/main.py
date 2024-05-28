@@ -11,19 +11,24 @@ Authors:
 import math
 import time
 import pygame
-from constants import IMG_OFFSETS, IMG_PATHS
+from constants import (
+    IMG_OFFSETS,
+    IMG_PATHS,
+    SCREEN_HEIGHT,
+    SCREEN_WIDTH,
+    HUD_HEIGHT,
+    PLAYER_BUFFER,
+    PLAYER_BASE_SPEED,
+    PLAYER_BASE_HULL,
+)
 from models.hud import HUD
 from models.player import Player
 
-# Globals
-SCREEN_WIDTH = 1280
-SCREEN_HEIGHT = 1084
-PLAYER_BUFFER = 150
+# Pygame globals
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 CLOCK = pygame.time.Clock()
 BG_IMG = pygame.image.load(IMG_PATHS["background"]).convert()
 PLYR_IMG = pygame.image.load(IMG_PATHS["player"]).convert_alpha()
-HUD_HEIGHT = 60
 
 
 def draw_background():
@@ -45,7 +50,9 @@ def main() -> None:
     control_font = pygame.font.SysFont("Comic Sans MS", 14)
 
     pos = pygame.Vector2((SCREEN.get_width() / 2), (SCREEN.get_height() / 2))
-    player = Player(pos, 3, 300, PLYR_IMG, IMG_OFFSETS["player"])
+    player = Player(
+        pos, PLAYER_BASE_HULL, PLAYER_BASE_SPEED, PLYR_IMG, IMG_OFFSETS["player"]
+    )
     hud = HUD()
 
     while running:
