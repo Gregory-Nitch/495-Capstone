@@ -10,4 +10,4 @@ class Player(Actor):
         super().__init__(pos, hp, speed, img, offset)
         self.fire_rate = 1
         self.missile_count = 0
-        self.score = 0
+        self.score = 1
