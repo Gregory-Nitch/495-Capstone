@@ -6,6 +6,14 @@ An endless runner in spaaaacceee!
 
 Thanks to www.kenney.nl for the great creative commons assets!
 
+## Authors
+
+    - Fandel, Jacob
+    - Hart, Hope
+    - Lozano, Zaid
+    - Nitch, Gregory
+    - Wheeler, Jack
+
 # Requirements
 
 - Python 3.12.3
