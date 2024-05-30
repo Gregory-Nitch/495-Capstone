@@ -12,7 +12,7 @@ Thanks to www.kenney.nl for the great creative commons assets!
     - Hart, Hope
     - Lozano, Zaid
     - Nitch, Gregory
-    - Jacks name goes here
+    - Wheeler, Jack
 
 # Requirements
 
