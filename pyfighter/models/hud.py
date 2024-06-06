@@ -4,7 +4,7 @@
 class HUD:
     """HUD for game display"""
 
-    def __init__(self) -> None:
+    def __init__(self):  # TODO move magic numbers up here (from draw)
         self.score_pos = 0
         self.hp_pos = 0
         self.speed_pos = 0
@@ -16,7 +16,7 @@ class HUD:
         score_surface = hud_font.render(f"Score: {player.score}", True, (255, 255, 255))
         stats_surface = hud_font.render(
             f"Hull: {player.hp}  Thrust: {player.speed} "
-            + f" Fire Rate: {player.fire_rate}  Missiles: {player.missile_count}",
+            + f" Cannon Cooldown: {player.base_cooldown}  Missiles: {player.missile_count}",
             True,
             (255, 255, 255),
         )

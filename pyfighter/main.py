@@ -23,19 +23,49 @@ from constants import (
     PLAYER_BASE_HULL,
     BASE_SPEED,
     ASTEROID_LIST,
+    SFX_PATHS,
 )
 from models.hud import HUD
 from models.player import Player
 from models.asteroid import Asteroid
+from models.actor import Actor
 
 # Pygame globals
+
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 CLOCK = pygame.time.Clock()
 BG_IMG = pygame.image.load(IMG_PATHS["background"]).convert()
 PLYR_IMG = pygame.image.load(IMG_PATHS["player"]).convert_alpha()
+PLYR_MASK = pygame.mask.from_surface(PLYR_IMG)
+BLUE_LASER = pygame.image.load(IMG_PATHS["blueLaser"]).convert_alpha()
+BLUE_LASER_MASK = pygame.mask.from_surface(BLUE_LASER)
 ASTEROID_IMG_MAP = {}
 for ast in ASTEROID_LIST:
     ASTEROID_IMG_MAP[ast] = pygame.image.load(IMG_PATHS[ast]).convert_alpha()
+
+
+def main_menu():
+    """Prints the start screen before the game begins and waits until the
+    player clicks the mouse button."""
+
+    title_font = pygame.font.SysFont("comicsans", 50)
+    not_ready = True
+    while not_ready:
+        SCREEN.blit(BG_IMG, (0, 0))
+        title_label = title_font.render(
+            "Press the mouse button to begin...", 1, (255, 255, 255)
+        )
+        SCREEN.blit(
+            title_label, (SCREEN.get_width() / 2 - title_label.get_width() / 2, 350)
+        )
+
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                not_ready = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                return
 
 
 def main() -> None:
@@ -43,7 +73,15 @@ def main() -> None:
 
     # pygame setup
     pygame.init()
+    laser_sfx = pygame.mixer.Sound(SFX_PATHS["laser"])
+    explosion_sfx = pygame.mixer.Sound(SFX_PATHS["explosion"])
+    laser_hit_sfx = pygame.mixer.Sound(SFX_PATHS["laserHit"])
+    pygame.mixer.music.load(SFX_PATHS["music"])
     pygame.font.init()
+    pygame.mixer.music.play(-1)  # -1 will ensure the song keeps looping
+
+    main_menu()
+
     running = True
     start_time = time.time()
     dt = 0
@@ -52,7 +90,17 @@ def main() -> None:
 
     pos = pygame.Vector2((SCREEN.get_width() / 2), (SCREEN.get_height() / 2))
     player = Player(
-        pos, PLAYER_BASE_HULL, PLAYER_BASE_SPEED, PLYR_IMG, IMG_OFFSETS["player"]
+        pos,
+        PLAYER_BASE_HULL,
+        PLAYER_BASE_SPEED,
+        PLYR_IMG,
+        PLYR_MASK,
+        IMG_OFFSETS["player"],
+        BLUE_LASER,
+        BLUE_LASER_MASK,
+        laser_sfx,
+        laser_hit_sfx,
+        explosion_sfx,
     )
     hud = HUD()
     asteroids = pygame.sprite.Group()
@@ -68,6 +116,8 @@ def main() -> None:
         SCREEN.blit(BG_IMG, (0, 60))  # Background should be first
 
         # Actors drawn here
+        for laser in player.lasers_fired:
+            laser.draw(SCREEN)
         player.draw(SCREEN)
         for a in asteroids:
             a.draw(SCREEN)
@@ -91,6 +141,7 @@ def main() -> None:
             )
             asteroids.add(new_asteroid)
 
+        player.cooldown_cannon()
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP] and player.pos.y > HUD_HEIGHT + player.offset["y"]:
             player.pos.y -= player.speed * dt
@@ -103,6 +154,8 @@ def main() -> None:
             player.pos.x -= player.speed * dt
         if keys[pygame.K_RIGHT] and player.pos.x < SCREEN_WIDTH - player.offset["x"]:
             player.pos.x += player.speed * dt
+        if keys[pygame.K_SPACE]:
+            player.shoot()
 
         if keys[pygame.K_ESCAPE]:
             running = False
@@ -110,7 +163,16 @@ def main() -> None:
         for a in asteroids:
             if a.pos.y - PLAYER_BUFFER > SCREEN.get_height():
                 a.kill()
+            elif Actor.resolve_collision(player, a):
+                running = False  # TODO show game over
             a.pos.y += a.speed * dt
+
+        for laser in player.lasers_fired:
+            if laser.pos.y < 0:
+                laser.kill()
+            player.resolve_hits(laser, asteroids)
+            # TODO add enemy ships to list of objs above
+            laser.pos.y -= laser.speed * dt
 
         # flip() the display to put your work on screen
         pygame.display.flip()

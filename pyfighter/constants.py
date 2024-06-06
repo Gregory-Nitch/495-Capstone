@@ -8,6 +8,7 @@ SCREEN_HEIGHT = 1084
 HUD_HEIGHT = 60
 PLAYER_BUFFER = 150
 BASE_SPEED = 150  # used for asteroids and enemies
+BASE_LASER_SPEED = 1000
 PLAYER_BASE_SPEED = 300
 PLAYER_BASE_HULL = 3
 DROP_CHANCE = 0.2
@@ -23,6 +24,10 @@ IMG_OFFSETS = {
     "meteorG2": {"x": 109, "y": 109},
     "meteorG3": {"x": 85, "y": 85},
     "meteorG4": {"x": 97, "y": 97},
+    "blueLaser": {
+        "x": 3,
+        "y": 0,
+    },  # Blue laser y offset is 0 so head of laser collision = hit
 }
 
 # Note: use convert alpha for images with transparency (not done here)
@@ -37,6 +42,14 @@ IMG_PATHS = {
     "meteorG2": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Meteors/meteorGrey_big2.png",
     "meteorG3": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Meteors/meteorGrey_big3.png",
     "meteorG4": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Meteors/meteorGrey_big4.png",
+    "blueLaser": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Lasers/laserBlue07.png",
+}
+
+SFX_PATHS = {
+    "laser": "./pyfighter/assets/zaid_sfx/laser1.wav",
+    "explosion": "./pyfighter/assets/zaid_sfx/Explosion_3.wav",
+    "laserHit": "./pyfighter/assets/zaid_sfx/Hit_4.wav",
+    "music": "./pyfighter/assets/zaid_sfx/music.mp3",
 }
 
 ASTEROID_LIST = [
