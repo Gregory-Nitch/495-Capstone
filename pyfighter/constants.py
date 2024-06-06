@@ -1,6 +1,5 @@
 """This file holds all the constant variables used by the program. 
-Such as player ship size, asteroid size and loads images to use in
-main."""
+Such as player ship size, asteroid size and contains paths to images."""
 
 # Game settings
 SCREEN_WIDTH = 1280
@@ -10,11 +9,13 @@ PLAYER_BUFFER = 150
 BASE_SPEED = 150  # used for asteroids and enemies
 BASE_LASER_SPEED = 1000
 PLAYER_BASE_SPEED = 300
+BASE_CANNON_COOLDOWN = 40
 PLAYER_BASE_HULL = 3
+BASE_LASER_DMG = 1
 DROP_CHANCE = 0.2
 
-# Offset = img width / 2 and img height / 2 | (Asteroids use averages due to rotation)
-IMG_OFFSETS = {
+# Offset = img width / 2 and img height / 2
+IMG_OFFSETS = {  # TODO revisit asteroids (no longer rotating imgs)
     "player": {"x": 49, "y": 37},
     "meteorB1": {"x": 91, "y": 91},
     "meteorB2": {"x": 109, "y": 109},
@@ -52,6 +53,7 @@ SFX_PATHS = {
     "music": "./pyfighter/assets/zaid_sfx/music.mp3",
 }
 
+# Used for random selection
 ASTEROID_LIST = [
     "meteorB1",
     "meteorB2",

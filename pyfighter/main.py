@@ -30,8 +30,7 @@ from models.player import Player
 from models.asteroid import Asteroid
 from models.actor import Actor
 
-# Pygame globals
-
+# Pygame globals, loading of game assets
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 CLOCK = pygame.time.Clock()
 BG_IMG = pygame.image.load(IMG_PATHS["background"]).convert()
@@ -59,8 +58,10 @@ def main_menu():
             title_label, (SCREEN.get_width() / 2 - title_label.get_width() / 2, 350)
         )
 
+        # Display above font
         pygame.display.update()
 
+        # Until quit or player starts the game
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 not_ready = False
@@ -69,7 +70,8 @@ def main_menu():
 
 
 def main() -> None:
-    """Main game loop"""
+    """Main game loop. Game will continue until the player looses or closes
+    the program."""
 
     # pygame setup
     pygame.init()
@@ -83,11 +85,12 @@ def main() -> None:
     main_menu()
 
     running = True
-    start_time = time.time()
-    dt = 0
+    start_time = time.time()  # Used for score
+    delta_time = 0  # Seconds since last frame, used for framerate physics
     hud_font = pygame.font.SysFont("Comic Sans MS", 20)
     control_font = pygame.font.SysFont("Comic Sans MS", 14)
 
+    # Setup player and other Actor containers/HUD
     pos = pygame.Vector2((SCREEN.get_width() / 2), (SCREEN.get_height() / 2))
     player = Player(
         pos,
@@ -105,6 +108,7 @@ def main() -> None:
     hud = HUD()
     asteroids = pygame.sprite.Group()
 
+    # Each iteration = 1 frame, game set to 60FPS
     while running:
         # poll for events
         # pygame.QUIT event means the user clicked X to close your window
@@ -113,7 +117,7 @@ def main() -> None:
                 running = False
 
         # Draw to screen here back to front
-        SCREEN.blit(BG_IMG, (0, 60))  # Background should be first
+        SCREEN.blit(BG_IMG, (0, 60))  # Background first, 60px down for hud
 
         # Actors drawn here
         for laser in player.lasers_fired:
@@ -128,7 +132,8 @@ def main() -> None:
 
         # Perform state change here
         player.score = math.floor(time.time() - start_time)
-        difficulty = player.score * 0.0005
+        difficulty = player.score * 0.0005  # Difficulty goes up as score increases
+        # Use of random produces a percent chance for an asteroid per frame
         if random.random() < difficulty:
             a_pos = pygame.Vector2(random.randrange(0, SCREEN_WIDTH), 0)
             a_key = random.choice(ASTEROID_LIST)
@@ -142,48 +147,52 @@ def main() -> None:
             asteroids.add(new_asteroid)
 
         player.cooldown_cannon()
+
+        # Check player inputs here
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP] and player.pos.y > HUD_HEIGHT + player.offset["y"]:
-            player.pos.y -= player.speed * dt
+            player.pos.y -= player.speed * delta_time
         if (
             keys[pygame.K_DOWN]
             and player.pos.y + player.offset["y"] < SCREEN_HEIGHT - PLAYER_BUFFER
         ):
-            player.pos.y += player.speed * dt
+            player.pos.y += player.speed * delta_time
         if keys[pygame.K_LEFT] and player.pos.x > 0 + player.offset["x"]:
-            player.pos.x -= player.speed * dt
+            player.pos.x -= player.speed * delta_time
         if keys[pygame.K_RIGHT] and player.pos.x < SCREEN_WIDTH - player.offset["x"]:
-            player.pos.x += player.speed * dt
+            player.pos.x += player.speed * delta_time
         if keys[pygame.K_SPACE]:
             player.shoot()
-
+        # ESC key = quit
         if keys[pygame.K_ESCAPE]:
             running = False
 
+        # Resolve events from state change here, kill = remove object
         for a in asteroids:
             if a.pos.y - PLAYER_BUFFER > SCREEN.get_height():
                 a.kill()
             elif Actor.resolve_collision(player, a):
                 running = False  # TODO show game over
-            a.pos.y += a.speed * dt
+            a.pos.y += a.speed * delta_time
 
         for laser in player.lasers_fired:
             if laser.pos.y < 0:
                 laser.kill()
             player.resolve_hits(laser, asteroids)
-            # TODO add enemy ships to list of objs above
-            laser.pos.y -= laser.speed * dt
+            # TODO add enemy ships to list of objs above (asteroids + enemies)
+            laser.pos.y -= laser.speed * delta_time
 
-        # flip() the display to put your work on screen
+        # Puts work on screen
         pygame.display.flip()
 
         # limits FPS to 60
-        # dt is delta time in seconds since last frame, used for framerate-
+        # delta time in seconds since last frame, used for framerate-
         # independent physics.
-        dt = CLOCK.tick(60) / 1000
+        delta_time = CLOCK.tick(60) / 1000
 
-    pygame.quit()
+    pygame.quit()  # Exited while loop, leaving game
 
 
+# Only start the main loop if this file was passed to interpreter
 if __name__ == "__main__":
     main()

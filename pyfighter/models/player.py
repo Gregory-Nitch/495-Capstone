@@ -2,8 +2,15 @@
 
 from pygame.sprite import Group as SpriteGroup
 from pygame import Vector2
+from pygame.mask import Mask
+from pygame.mixer import Sound
 from models.actor import Actor
-from constants import IMG_OFFSETS, BASE_LASER_SPEED
+from constants import (
+    IMG_OFFSETS,
+    BASE_LASER_SPEED,
+    BASE_CANNON_COOLDOWN,
+    BASE_LASER_DMG,
+)
 
 
 class Player(Actor):
@@ -11,22 +18,22 @@ class Player(Actor):
 
     def __init__(
         self,
-        pos,
-        hp,
-        speed,
+        pos: Vector2,
+        hp: int,
+        speed: int,
         ship_img,
-        ship_mask,
-        offset,
+        ship_mask: Mask,
+        offset: dict,
         laser_img,
-        laser_mask,
-        laser_sfx,
-        laser_hit_sfx,
-        explosion_sfx,
+        laser_mask: Mask,
+        laser_sfx: Sound,
+        laser_hit_sfx: Sound,
+        explosion_sfx: Sound,
     ):
         super().__init__(pos, hp, speed, ship_img, ship_mask, offset)
-        self.base_cooldown = 40
+        self.cooldown_threshold = BASE_CANNON_COOLDOWN
         self.cooldown_counter = 0
-        self.laser_dmg = 1
+        self.laser_dmg = BASE_LASER_DMG
         self.missile_count = 0
         self.score = 0
         self.laser_img = laser_img
@@ -39,6 +46,7 @@ class Player(Actor):
 
     def shoot(self):
         """Appends a new laser to the laser list if the player's cannon is not in cooldown."""
+        # 0 = player is ready to fire
         if self.cooldown_counter == 0:
             laser_pos = Vector2((self.pos.x), (self.pos.y - self.offset["y"]))
             laser = Actor(
@@ -51,10 +59,12 @@ class Player(Actor):
             )
             self.lasers_fired.add(laser)
             self.laser_sfx.play()
+            # Setting to 1 starts timer (see cooldown_cannon())
             self.cooldown_counter = 1
 
     def resolve_hits(self, laser, objs):
-        """Resolves player lasers in the game, a hit = -1 on target."""
+        """Resolves player lasers in the game, a hit = -1 hp on target. If
+        the objects hp is <= 0 then method calls kill() on the object."""
 
         for obj in objs:
             if Actor.resolve_collision(laser, obj):
@@ -63,13 +73,15 @@ class Player(Actor):
                 if obj.hp <= 0:
                     obj.kill()
                     self.explosion_sfx.play()
-                self.lasers_fired.remove(laser)
+                self.lasers_fired.remove(laser)  # Stop drawing laser that hit
 
     def cooldown_cannon(self):
-        """Ticks trough the player's cooldown timer for their cannon per frame
-        displayed."""
+        """Needs to be called on every frame of the game, once the threshold is
+        reached the player can fire again."""
 
-        if self.cooldown_counter >= self.base_cooldown:
+        # If threshold met, then set counter to 0 (player can fire again)
+        if self.cooldown_counter >= self.cooldown_threshold:
             self.cooldown_counter = 0
+        # Else increase counter (gets closer to threshold)
         elif self.cooldown_counter > 0:
             self.cooldown_counter += 1
