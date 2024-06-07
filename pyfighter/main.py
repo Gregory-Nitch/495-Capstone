@@ -195,7 +195,7 @@ def main() -> None:
         for powerup in powerups:
             if powerup.pos.y - PLAYER_BUFFER > SCREEN.get_height():
                 powerup.kill()
-            elif powerup.resolve_powerup_collision(player):
+            elif Actor.resolve_collision(player, powerup):
                 powerup.pickup(player)
                 powerup.kill()
             powerup.pos.y += powerup.speed * delta_time
