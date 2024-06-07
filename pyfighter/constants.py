@@ -10,9 +10,22 @@ BASE_SPEED = 150  # used for asteroids and enemies
 BASE_LASER_SPEED = 1000
 PLAYER_BASE_SPEED = 300
 BASE_CANNON_COOLDOWN = 40
+PLAYER_BASE_CANNON_COOLDOWN = 40  # added for powerUps by jack
 PLAYER_BASE_HULL = 3
 BASE_LASER_DMG = 1
 DROP_CHANCE = 0.2
+
+# Power-Up settings (added for powerUps by jack)
+POWERUP_DROP_CHANCE = 0.2  
+POWERUP_DURATION = 10  # seconds
+
+# Paths to power-up images (added by jack)
+POWERUP_IMG_PATHS = {  
+    "fire_rate": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Power-ups/powerupBlue_star.png",
+    "speed": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Power-ups/powerupGreen_star.png",
+    "missiles": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Power-ups/powerupRed_star.png",
+}
+
 
 # Offset = img width / 2 and img height / 2
 IMG_OFFSETS = {  # TODO revisit asteroids (no longer rotating imgs)

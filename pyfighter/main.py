@@ -24,11 +24,17 @@ from constants import (
     BASE_SPEED,
     ASTEROID_LIST,
     SFX_PATHS,
+    POWERUP_DROP_CHANCE,  # added for powerUps by jack
+    POWERUP_DURATION,  
+    POWERUP_IMG_PATHS, 
+    PLAYER_BASE_CANNON_COOLDOWN 
 )
 from models.hud import HUD
 from models.player import Player
 from models.asteroid import Asteroid
 from models.actor import Actor
+from models.powerup import PowerUp  # added for powerUps by jack
+
 
 # Pygame globals, loading of game assets
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -41,6 +47,11 @@ BLUE_LASER_MASK = pygame.mask.from_surface(BLUE_LASER)
 ASTEROID_IMG_MAP = {}
 for ast in ASTEROID_LIST:
     ASTEROID_IMG_MAP[ast] = pygame.image.load(IMG_PATHS[ast]).convert_alpha()
+POWERUP_IMGS = {  # added for powerUps by jack
+    "fire_rate": pygame.image.load(POWERUP_IMG_PATHS["fire_rate"]).convert_alpha(),  
+    "speed": pygame.image.load(POWERUP_IMG_PATHS["speed"]).convert_alpha(),  
+    "missiles": pygame.image.load(POWERUP_IMG_PATHS["missiles"]).convert_alpha(),  
+}
 
 
 def main_menu():
@@ -107,6 +118,7 @@ def main() -> None:
     )
     hud = HUD()
     asteroids = pygame.sprite.Group()
+    powerups = pygame.sprite.Group()  # added for powerUps by jack
 
     # Each iteration = 1 frame, game set to 60FPS
     while running:
@@ -181,6 +193,23 @@ def main() -> None:
             player.resolve_hits(laser, asteroids)
             # TODO add enemy ships to list of objs above (asteroids + enemies)
             laser.pos.y -= laser.speed * delta_time
+        
+        # added for powerUps by jack
+        for powerup in powerups: 
+            if player.rect.colliderect(powerup.rect):
+                if powerup.power_type == "fire_rate":
+                    player.cannon_cooldown /= 2  # Increase fire rate
+                elif powerup.power_type == "speed":
+                    player.speed *= 1.5  # Increase speed
+                elif powerup.power_type == "missiles":
+                    player.has_missiles = True  # Enable missiles
+                powerup.kill()
+
+        # Reset power-up effects after duration expires (added for powerUps by jack)
+        if time.time() - player.powerup_start_time > POWERUP_DURATION:  
+            player.cannon_cooldown = PLAYER_BASE_CANNON_COOLDOWN  
+            player.speed = PLAYER_BASE_SPEED  
+            player.has_missiles = False  
 
         # Puts work on screen
         pygame.display.flip()
