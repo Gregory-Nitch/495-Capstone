@@ -43,6 +43,9 @@ class Player(Actor):
         self.laser_sfx = laser_sfx
         self.laser_hit_sfx = laser_hit_sfx
         self.explosion_sfx = explosion_sfx
+        self.cannon_cooldown = PLAYER_BASE_CANNON_COOLDOWN  # added for powerUps by jack
+        self.has_missiles = False  
+        self.powerup_start_time = time.time()  
 
     def shoot(self):
         """Appends a new laser to the laser list if the player's cannon is not in cooldown."""
@@ -59,6 +62,9 @@ class Player(Actor):
             )
             self.lasers_fired.add(laser)
             self.laser_sfx.play()
+            if self.has_missiles:  # added for powerUps by jack
+                # Add missile shooting logic here
+                pass  # Placeholder for missile logic
             # Setting to 1 starts timer (see cooldown_cannon())
             self.cooldown_counter = 1
 

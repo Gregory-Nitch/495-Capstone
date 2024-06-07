@@ -194,7 +194,8 @@ def main() -> None:
             # TODO add enemy ships to list of objs above (asteroids + enemies)
             laser.pos.y -= laser.speed * delta_time
         
-        for powerup in powerups: # added for powerUps by jack
+        # added for powerUps by jack
+        for powerup in powerups: 
             if player.rect.colliderect(powerup.rect):
                 if powerup.power_type == "fire_rate":
                     player.cannon_cooldown /= 2  # Increase fire rate
@@ -204,7 +205,7 @@ def main() -> None:
                     player.has_missiles = True  # Enable missiles
                 powerup.kill()
 
-        # Reset power-up effects after duration expires, added for powerUps by jack
+        # Reset power-up effects after duration expires (added for powerUps by jack)
         if time.time() - player.powerup_start_time > POWERUP_DURATION:  
             player.cannon_cooldown = PLAYER_BASE_CANNON_COOLDOWN  
             player.speed = PLAYER_BASE_SPEED  
