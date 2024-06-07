@@ -10,24 +10,12 @@ BASE_SPEED = 150  # used for asteroids and enemies
 BASE_LASER_SPEED = 1000
 PLAYER_BASE_SPEED = 300
 BASE_CANNON_COOLDOWN = 40
-PLAYER_BASE_CANNON_COOLDOWN = 40  # added for powerUps by jack
 PLAYER_BASE_HULL = 3
 BASE_LASER_DMG = 1
-DROP_CHANCE = 0.2
-
-# Power-Up settings (added for powerUps by jack)
-POWERUP_DROP_CHANCE = 0.2  
-POWERUP_DURATION = 10  # seconds
-
-# Paths to power-up images (added by jack)
-POWERUP_IMG_PATHS = {  
-    "fire_rate": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Power-ups/powerupBlue_star.png",
-    "speed": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Power-ups/powerupGreen_star.png",
-    "missiles": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Power-ups/powerupRed_star.png",
-}
-
+POWERUP_DROP_CHANCE = 0.2
 
 # Offset = img width / 2 and img height / 2
+# Blue laser y offset is 0 so head of laser collision = hit
 IMG_OFFSETS = {  # TODO revisit asteroids (no longer rotating imgs)
     "player": {"x": 49, "y": 37},
     "meteorB1": {"x": 91, "y": 91},
@@ -38,10 +26,10 @@ IMG_OFFSETS = {  # TODO revisit asteroids (no longer rotating imgs)
     "meteorG2": {"x": 109, "y": 109},
     "meteorG3": {"x": 85, "y": 85},
     "meteorG4": {"x": 97, "y": 97},
-    "blueLaser": {
-        "x": 3,
-        "y": 0,
-    },  # Blue laser y offset is 0 so head of laser collision = hit
+    "blueLaser": {"x": 3, "y": 0},
+    "fire_rate": {"x": 17, "y": 16},
+    "speed": {"x": 17, "y": 16},
+    "missiles": {"x": 17, "y": 16},
 }
 
 # Note: use convert alpha for images with transparency (not done here)
@@ -57,6 +45,9 @@ IMG_PATHS = {
     "meteorG3": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Meteors/meteorGrey_big3.png",
     "meteorG4": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Meteors/meteorGrey_big4.png",
     "blueLaser": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Lasers/laserBlue07.png",
+    "fire_rate": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Power-ups/powerupBlue_star.png",
+    "speed": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Power-ups/powerupGreen_star.png",
+    "missiles": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Power-ups/powerupRed_star.png",
 }
 
 SFX_PATHS = {
@@ -76,4 +67,10 @@ ASTEROID_LIST = [
     "meteorG2",
     "meteorG3",
     "meteorG4",
+]
+
+POWERUP_LIST = [
+    "fire_rate",
+    "speed",
+    "missiles",
 ]

@@ -43,9 +43,6 @@ class Player(Actor):
         self.laser_sfx = laser_sfx
         self.laser_hit_sfx = laser_hit_sfx
         self.explosion_sfx = explosion_sfx
-        self.cannon_cooldown = PLAYER_BASE_CANNON_COOLDOWN  # added for powerUps by jack
-        self.has_missiles = False  
-        self.powerup_start_time = time.time()  
 
     def shoot(self):
         """Appends a new laser to the laser list if the player's cannon is not in cooldown."""
@@ -62,24 +59,25 @@ class Player(Actor):
             )
             self.lasers_fired.add(laser)
             self.laser_sfx.play()
-            if self.has_missiles:  # added for powerUps by jack
-                # Add missile shooting logic here
-                pass  # Placeholder for missile logic
             # Setting to 1 starts timer (see cooldown_cannon())
             self.cooldown_counter = 1
 
-    def resolve_hits(self, laser, objs):
+    def resolve_hits(self, laser, objs) -> list:
         """Resolves player lasers in the game, a hit = -1 hp on target. If
         the objects hp is <= 0 then method calls kill() on the object."""
+
+        objs_to_kill = []
 
         for obj in objs:
             if Actor.resolve_collision(laser, obj):
                 obj.hp -= 1
                 self.laser_hit_sfx.play()
                 if obj.hp <= 0:
-                    obj.kill()
                     self.explosion_sfx.play()
+                    objs_to_kill.append(obj)
                 self.lasers_fired.remove(laser)  # Stop drawing laser that hit
+
+        return objs_to_kill
 
     def cooldown_cannon(self):
         """Needs to be called on every frame of the game, once the threshold is
@@ -91,3 +89,8 @@ class Player(Actor):
         # Else increase counter (gets closer to threshold)
         elif self.cooldown_counter > 0:
             self.cooldown_counter += 1
+
+    def fire_missle(self):
+        """NEED TO DO THIS"""
+        # TODO
+        pass

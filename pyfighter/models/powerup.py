@@ -1,19 +1,31 @@
-import pygame
-import time
-from constants import POWERUP_DURATION  
+""""""
 
-class PowerUp(pygame.sprite.Sprite):
-    #Power-up object for the game
+from models.actor import Actor
+from models.player import Player
 
-    def __init__(self, pos, power_type, image):
-        super().__init__()
-        self.image = image
-        self.rect = self.image.get_rect(center=pos)
+
+class PowerUp(Actor):
+    """"""
+
+    # Power-up object for the game
+
+    def __init__(self, pos, speed, img, img_mask, offset, power_type):
+        super().__init__(pos, 0, speed, img, img_mask, offset)
         self.power_type = power_type
-        self.spawn_time = time.time()
 
-    def update(self, delta_time):
-        #Updates the power-up position and checks if it should be removed
-        self.rect.y += 200 * delta_time  # Move power-up down the screen
-        if time.time() - self.spawn_time > POWERUP_DURATION:
-            self.kill()  # Remove power-up after duration expires
+    def resolve_powerup_collision(self, player: Player) -> bool:
+        """"""
+
+        # +5 is for image offset tuning
+        offset_x = (player.pos.x - player.offset["x"] + 5) - (
+            self.pos.x - self.offset["x"]
+        )
+        offset_y = (player.pos.y - player.offset["y"]) - (self.pos.y - self.offset["y"])
+        return self.img_mask.overlap(player.img_mask, (offset_x, offset_y)) is not None
+
+    def pickup(self, player: Player) -> None:
+        """"""
+
+        # TODO check the rest of the powerup types below
+        if self.power_type == "fire_rate":
+            player.cooldown_threshold -= 2
