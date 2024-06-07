@@ -17,5 +17,5 @@ class PowerUp(Actor):
         """"""
 
         # TODO check the rest of the powerup types below
-        if self.power_type == "fire_rate":
+        if self.power_type == "fire_rate" and player.cooldown_threshold > 0:
             player.cooldown_threshold -= 2

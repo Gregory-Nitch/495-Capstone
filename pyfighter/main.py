@@ -42,6 +42,8 @@ PLYR_IMG = pygame.image.load(IMG_PATHS["player"]).convert_alpha()
 PLYR_MASK = pygame.mask.from_surface(PLYR_IMG)
 BLUE_LASER = pygame.image.load(IMG_PATHS["blueLaser"]).convert_alpha()
 BLUE_LASER_MASK = pygame.mask.from_surface(BLUE_LASER)
+BLUE_MISSILE = pygame.image.load(IMG_PATHS["blueMissile"]).convert_alpha()
+BLUE_MISSILE_MASK = pygame.mask.from_surface(BLUE_MISSILE)
 ASTEROID_IMG_MAP = {}
 for ast in ASTEROID_LIST:
     ASTEROID_IMG_MAP[ast] = pygame.image.load(IMG_PATHS[ast]).convert_alpha()
@@ -83,6 +85,26 @@ def main_menu():
                 return
 
 
+def proccess_obj_for_powerup(obj: Actor, player: Player):
+    """Creates PowerUp class instances with passed object references."""
+
+    spawn_loc = obj.pos
+    spawn_loc.x -= obj.offset["x"] / 2
+    spawn_loc.y -= obj.offset["y"] / 2
+    powerup_key = random.choice(POWERUP_LIST)
+    powerup_img = POWERUP_IMGS[powerup_key]
+    powerup_mask = POWERUP_MASKS[powerup_key]
+    new_powerup = PowerUp(
+        spawn_loc,
+        BASE_SPEED + player.score,
+        powerup_img,
+        powerup_mask,
+        IMG_OFFSETS[powerup_key],
+        powerup_key,
+    )
+    return new_powerup
+
+
 def main() -> None:
     """Main game loop. Game will continue until the player looses or closes
     the program."""
@@ -116,6 +138,8 @@ def main() -> None:
         BLUE_LASER,
         BLUE_LASER_MASK,
         laser_sfx,
+        BLUE_MISSILE,
+        BLUE_LASER_MASK,
         laser_hit_sfx,
         explosion_sfx,
     )
@@ -137,6 +161,8 @@ def main() -> None:
         # Actors drawn here
         for p in powerups:
             p.draw(SCREEN)
+        for missile in player.missiles_fired:
+            missile.draw(SCREEN)
         for laser in player.lasers_fired:
             laser.draw(SCREEN)
         player.draw(SCREEN)
@@ -180,6 +206,8 @@ def main() -> None:
             player.pos.x += player.speed * delta_time
         if keys[pygame.K_SPACE]:
             player.shoot()
+        if keys[pygame.K_LALT]:
+            player.fire_missle()
         # ESC key = quit
         if keys[pygame.K_ESCAPE]:
             running = False
@@ -187,17 +215,17 @@ def main() -> None:
         # Resolve events from state change here, kill = remove object
         for a in asteroids:
             if a.pos.y - PLAYER_BUFFER > SCREEN.get_height():
-                a.kill()
+                asteroids.remove(a)
             elif Actor.resolve_collision(player, a):
                 running = False  # TODO show game over
             a.pos.y += a.speed * delta_time
 
         for powerup in powerups:
             if powerup.pos.y - PLAYER_BUFFER > SCREEN.get_height():
-                powerup.kill()
+                powerups.remove(powerup)
             elif Actor.resolve_collision(player, powerup):
                 powerup.pickup(player)
-                powerup.kill()
+                powerups.remove(powerup)
             powerup.pos.y += powerup.speed * delta_time
 
         objs_to_kill = []
@@ -207,27 +235,18 @@ def main() -> None:
                 laser.kill()
             objs_to_kill = player.resolve_hits(laser, asteroids)
             # TODO add enemy ships to list of objs above (asteroids + enemies)
+            for obj in objs_to_kill:
+                # TODO implement drop chance
+                new_powerup = proccess_obj_for_powerup(obj, player)
+                powerups.add(new_powerup)
             laser.pos.y -= laser.speed * delta_time
 
-        for obj in objs_to_kill:
-            # TODO implement drop chance
-            spawn_loc = obj.pos
-            spawn_loc.x -= obj.offset["x"] / 2
-            spawn_loc.y -= obj.offset["y"] / 2
-            powerup_key = random.choice(POWERUP_LIST)
-            powerup_img = POWERUP_IMGS[powerup_key]
-            powerup_mask = POWERUP_MASKS[powerup_key]
-            new_powerup = PowerUp(
-                spawn_loc,
-                BASE_SPEED + player.score,
-                powerup_img,
-                powerup_mask,
-                IMG_OFFSETS[powerup_key],
-                powerup_key,
-            )
-            powerups.add(new_powerup)
-            # kill obj
-            obj.kill()
+        for missile in player.missiles_fired:
+            missile.pos.y -= missile.speed * delta_time
+            # TODO implement collision
+
+        # Need to empty obj kill list for next frame
+        objs_to_kill.clear()
 
         # Puts work on screen
         pygame.display.flip()

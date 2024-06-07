@@ -27,6 +27,8 @@ class Player(Actor):
         laser_img,
         laser_mask: Mask,
         laser_sfx: Sound,
+        missle_img,
+        missle_mask: Mask,
         laser_hit_sfx: Sound,
         explosion_sfx: Sound,
     ):
@@ -34,18 +36,23 @@ class Player(Actor):
         self.cooldown_threshold = BASE_CANNON_COOLDOWN
         self.cooldown_counter = 0
         self.laser_dmg = BASE_LASER_DMG
-        self.missile_count = 0
+        self.missile_count = 1
         self.score = 0
         self.laser_img = laser_img
         self.lasers_fired = SpriteGroup()
         self.laser_mask = laser_mask
         self.laser_offset = IMG_OFFSETS["blueLaser"]
+        self.missile_img = missle_img
+        self.missile_mask = missle_mask
+        self.missiles_fired = SpriteGroup()
+        # TODO missile offset
         self.laser_sfx = laser_sfx
         self.laser_hit_sfx = laser_hit_sfx
         self.explosion_sfx = explosion_sfx
 
     def shoot(self):
         """Appends a new laser to the laser list if the player's cannon is not in cooldown."""
+
         # 0 = player is ready to fire
         if self.cooldown_counter == 0:
             laser_pos = Vector2((self.pos.x), (self.pos.y - self.offset["y"]))
@@ -73,6 +80,7 @@ class Player(Actor):
                 obj.hp -= 1
                 self.laser_hit_sfx.play()
                 if obj.hp <= 0:
+                    obj.kill()
                     self.explosion_sfx.play()
                     objs_to_kill.append(obj)
                 self.lasers_fired.remove(laser)  # Stop drawing laser that hit
@@ -91,6 +99,18 @@ class Player(Actor):
             self.cooldown_counter += 1
 
     def fire_missle(self):
-        """NEED TO DO THIS"""
-        # TODO
-        pass
+        """Fires a missile from the players ship if they have picked up a
+        missile to use."""
+
+        if self.missile_count > 0:
+            missile_pos = Vector2((self.pos.x), (self.pos.y - self.offset["y"]))
+            missile = Actor(
+                missile_pos,
+                0,
+                self.speed,
+                self.missile_img,
+                self.missile_mask,
+                IMG_OFFSETS["blueMissile"],
+            )
+            self.missiles_fired.add(missile)
+            self.missile_count -= 1
