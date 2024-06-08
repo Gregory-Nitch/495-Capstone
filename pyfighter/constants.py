@@ -12,7 +12,6 @@ PLAYER_BASE_SPEED = 300
 BASE_CANNON_COOLDOWN = 40
 PLAYER_BASE_HULL = 3
 BASE_LASER_DMG = 1
-POWERUP_DROP_CHANCE = 0.2
 
 # Offset = img width / 2 and img height / 2
 # Blue laser y offset is 0 so head of laser collision = hit
