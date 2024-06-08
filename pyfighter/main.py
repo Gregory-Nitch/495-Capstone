@@ -255,20 +255,35 @@ def main() -> None:
 
         for laser in player.lasers_fired:
             if laser.pos.y < 0:
-                laser.kill()
+                player.lasers_fired.remove(laser)
             objs_to_kill = player.resolve_hits(laser, asteroids)
             # TODO add enemy ships to list of objs above (asteroids + enemies)
             for obj in objs_to_kill:
-                if player.score % 3 == 1:  # randomize drop chance from player score
+                if player.score % 3 == 1:  # Randomize drop chance from player score
                     new_powerup = proccess_obj_for_powerup(obj, player)
                     powerups.add(new_powerup)
             laser.pos.y -= laser.speed * delta_time
 
-        for missile in player.missiles_fired:
-            missile.pos.y -= missile.speed * delta_time
-            # TODO implement collision
+        # Need to empty objs to kill for next iteration
+        objs_to_kill.clear()
 
-        # Need to empty obj kill list for next frame
+        for missile in player.missiles_fired:
+            if (
+                missile.pos.y < 0
+                or missile.pos.y > SCREEN.get_height()
+                or missile.pos.x < 0
+                or missile.pos.x > SCREEN.get_width()
+            ):
+                player.missiles_fired.remove(missile)
+            objs_to_kill = player.resolve_missiles(missile, asteroids)
+            # TODO add enemy ships to list of objs above (asteroids + enemies)
+            for obj in objs_to_kill:
+                if player.score % 3 == 1:  # Randomize drop chance from player score
+                    new_powerup = proccess_obj_for_powerup(obj, player)
+                    powerups.add(new_powerup)
+            missile.pos.y -= missile.speed * delta_time
+
+        # Need to empty objs kill list for next frame
         objs_to_kill.clear()
 
         # Puts work on screen

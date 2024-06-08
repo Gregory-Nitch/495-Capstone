@@ -69,7 +69,7 @@ class Player(Actor):
             # Setting to 1 starts timer (see cooldown_cannon())
             self.cooldown_counter = 1
 
-    def resolve_hits(self, laser, objs) -> list:
+    def resolve_hits(self, laser: Actor, objs: list) -> list:
         """Resolves player lasers in the game, a hit = -1 hp on target. If
         the objects hp is <= 0 then method calls kill() on the object."""
 
@@ -114,3 +114,20 @@ class Player(Actor):
             )
             self.missiles_fired.add(missile)
             self.missile_count -= 1
+
+    def resolve_missiles(self, missile: Actor, objs: list) -> list:
+        """Iterates through all Actor objects in the passed list of objects to
+        check if a fired missile has hit it. Returns a list of hit objects."""
+
+        objs_to_kill = []
+
+        for obj in objs:
+            if Actor.resolve_collision(missile, obj):
+                self.explosion_sfx.play()
+                obj.hp -= 3
+                if obj.hp <= 0:
+                    obj.kill()
+                    objs_to_kill.append(obj)
+                self.missiles_fired.remove(missile)  # Stop drawing missile that hit
+
+        return objs_to_kill
