@@ -125,6 +125,7 @@ def main() -> None:
     delta_time = 0  # Seconds since last frame, used for framerate physics
     hud_font = pygame.font.SysFont("Comic Sans MS", 20)
     control_font = pygame.font.SysFont("Comic Sans MS", 14)
+    lost_font = pygame.font.SysFont("comicsans", 50)
 
     # Setup player and other Actor containers/HUD
     pos = pygame.Vector2((SCREEN.get_width() / 2), (SCREEN.get_height() / 2))
@@ -217,7 +218,21 @@ def main() -> None:
             if a.pos.y - PLAYER_BUFFER > SCREEN.get_height():
                 asteroids.remove(a)
             elif Actor.resolve_collision(player, a):
-                running = False  # TODO show game over
+                pygame.time.wait(500) #wait on loss before moving to game over
+                running = False
+                SCREEN.blit(BG_IMG, (0, 0))
+                lost_label = lost_font.render("Game Over!! Your score was: " + str(player.score), 1, (255,255,255))
+                SCREEN.blit(lost_label, (SCREEN_WIDTH/2 - lost_label.get_width()/2,350))
+                not_ready = True
+                while not_ready:
+                    # Display above font
+                    pygame.display.update()
+                    # Until quit or player starts the game
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            not_ready = False
+                        if event.type == pygame.MOUSEBUTTONDOWN:
+                            not_ready = False
             a.pos.y += a.speed * delta_time
 
         for powerup in powerups:
@@ -236,14 +251,16 @@ def main() -> None:
             objs_to_kill = player.resolve_hits(laser, asteroids)
             # TODO add enemy ships to list of objs above (asteroids + enemies)
             for obj in objs_to_kill:
-                # TODO implement drop chance
-                new_powerup = proccess_obj_for_powerup(obj, player)
-                powerups.add(new_powerup)
+                if player.score % 3 == 1: #randomize drop chance from player score
+                    new_powerup = proccess_obj_for_powerup(obj, player)
+                    powerups.add(new_powerup)
             laser.pos.y -= laser.speed * delta_time
 
         for missile in player.missiles_fired:
             missile.pos.y -= missile.speed * delta_time
             # TODO implement collision
+
+
 
         # Need to empty obj kill list for next frame
         objs_to_kill.clear()
