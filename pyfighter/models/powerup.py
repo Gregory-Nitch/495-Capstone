@@ -39,9 +39,11 @@ class PowerUp(Actor):
         elif self.power_type == "missiles":
             player.missile_count += 1
 
+        # Play a pickup sound
         self.play_pickup_sound()
 
-        self.display_pickup_effect(player)
+        # Display visual effect
+        player.start_glow_effect()
 
     def play_pickup_sound(self):
         """Plays a sound effect when the power-up is picked up."""
@@ -49,16 +51,4 @@ class PowerUp(Actor):
         pickup_sound = pygame.mixer.Sound(SFX_PATHS["powerup_pickup"])
         pickup_sound.play()
 
-    def display_pickup_effect(self, player: Player):
-        """Displays a visual effect when the power-up is picked up."""
-
-        # $ TODO this is not working correctly - player doesnt retore to original color
-        # Example: Add a brief glow effect to the player
-        original_color = player.img.get_at((0, 0))
-        glow_color = pygame.Color("yellow")
-        player.img.fill(glow_color, special_flags=pygame.BLEND_ADD)
-        pygame.time.set_timer(pygame.USEREVENT, 200)  # Restore color after 200ms
-        for event in pygame.event.get():
-            if event.type == pygame.USEREVENT:
-                player.img.fill(original_color, special_flags=pygame.BLEND_SUB)
-                pygame.time.set_timer(pygame.USEREVENT, 0)  # Disable timer
+ 
