@@ -129,9 +129,18 @@ def test_resolve_hits():
     ).convert_alpha()
     test_asteroid_mask = pygame.mask.from_surface(test_asteroid_img)
 
-    # Mock asteroid object
-    test_asteroid = Actor(
+    # Mock asteroid objects
+    test_asteroid1 = Actor(
         pygame.Vector2(0, 0),
+        3,
+        0,
+        test_asteroid_img,
+        test_asteroid_mask,
+        {"x": 0, "y": 0},
+    )
+    # 1000px offset to test miss
+    test_asteroid2 = Actor(
+        pygame.Vector2(1000, 1000),
         3,
         0,
         test_asteroid_img,
@@ -140,13 +149,18 @@ def test_resolve_hits():
     )
 
     # Mock laser object
-    test_laser = Actor(
+    test_laser1 = Actor(
         pygame.Vector2(0, 0), 0, 0, test_laser_img, test_laser_mask, {"x": 0, "y": 0}
     )
-    test_player.lasers_fired.add(test_laser)
+    test_laser2 = Actor(
+        pygame.Vector2(0, 0), 0, 0, test_laser_img, test_laser_mask, {"x": 0, "y": 0}
+    )
+    test_player.lasers_fired.add(test_laser1)
+    test_player.lasers_fired.add(test_laser2)
 
     # Hit mock asteroid with mock laser
-    test_player.resolve_hits(test_laser, [test_asteroid])
+    test_player.resolve_hits(test_laser1, [test_asteroid1, test_asteroid2])
 
     # Check asteroid hp is 3 - 1
-    assert test_asteroid.hp == 2
+    assert test_asteroid1.hp == 2
+    assert test_asteroid2.hp == 3  # test non hit
