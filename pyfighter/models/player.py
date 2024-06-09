@@ -144,22 +144,23 @@ class Player(Actor):
 
         return objs_to_kill
 
-    
     def start_glow_effect(self):
         """Initiates a glow effect on the player."""
-        
+
         self.glow_effect_active = True
         self.glow_effect_end_time = pygame.time.get_ticks() + self.glow_effect_duration
         glow_color = pygame.Color("yellow")
         self.img.fill(glow_color, special_flags=pygame.BLEND_ADD)
-    
+
     def update(self):
         """Updates the player state, including handling the glow effect."""
-        
-        if self.glow_effect_active and pygame.time.get_ticks() > self.glow_effect_end_time:
+
+        if (
+            self.glow_effect_active
+            and pygame.time.get_ticks() > self.glow_effect_end_time
+        ):
             self.glow_effect_active = False
             self.img = self.original_image.copy()
-
 
     def cooldown_missiles(self):
         """Ticks the cooldown for player missiles, should be callsed for
@@ -169,4 +170,3 @@ class Player(Actor):
             self.missile_cooldown_counter = 0
         elif self.missile_cooldown_counter > 0:
             self.missile_cooldown_counter += 1
-
