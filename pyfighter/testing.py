@@ -15,7 +15,7 @@ from models.player import Player
 from models.actor import Actor
 
 
-def test_cooldown_toggle():
+def test_cooldown_counters():
     """Tests if the player's cannon cooldown counter is properly set after
     firing their cannon."""
 
@@ -36,10 +36,13 @@ def test_cooldown_toggle():
         None,
         None,
     )
-    # Test counter
+    # Test counters
     assert test_player.cooldown_counter == 0
     test_player.shoot()
     assert test_player.cooldown_counter == 1
+    assert test_player.missile_cooldown_counter == 0
+    test_player.fire_missle()
+    assert test_player.missile_cooldown_counter == 1
 
 
 def test_collision():
@@ -129,9 +132,18 @@ def test_resolve_hits():
     ).convert_alpha()
     test_asteroid_mask = pygame.mask.from_surface(test_asteroid_img)
 
-    # Mock asteroid object
-    test_asteroid = Actor(
+    # Mock asteroid objects
+    test_asteroid1 = Actor(
         pygame.Vector2(0, 0),
+        3,
+        0,
+        test_asteroid_img,
+        test_asteroid_mask,
+        {"x": 0, "y": 0},
+    )
+    # 1000px offset to test miss
+    test_asteroid2 = Actor(
+        pygame.Vector2(1000, 1000),
         3,
         0,
         test_asteroid_img,
@@ -140,13 +152,25 @@ def test_resolve_hits():
     )
 
     # Mock laser object
-    test_laser = Actor(
+    test_laser1 = Actor(
         pygame.Vector2(0, 0), 0, 0, test_laser_img, test_laser_mask, {"x": 0, "y": 0}
     )
-    test_player.lasers_fired.add(test_laser)
+    test_laser2 = Actor(
+        pygame.Vector2(0, 0), 0, 0, test_laser_img, test_laser_mask, {"x": 0, "y": 0}
+    )
+    test_player.lasers_fired.add(test_laser1)
+    test_player.lasers_fired.add(test_laser2)
 
     # Hit mock asteroid with mock laser
-    test_player.resolve_hits(test_laser, [test_asteroid])
+    test_player.resolve_hits(test_laser1, [test_asteroid1, test_asteroid2])
 
     # Check asteroid hp is 3 - 1
-    assert test_asteroid.hp == 2
+    assert test_asteroid1.hp == 2
+    assert test_asteroid2.hp == 3  # test non hit
+
+
+def test_powerup_pickup():
+    """This tests if the pickups are properly changing player stats."""
+
+    # TODO
+    pass

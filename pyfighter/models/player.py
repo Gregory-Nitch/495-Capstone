@@ -47,7 +47,10 @@ class Player(Actor):
         self.missile_img = missle_img
         self.missile_mask = missle_mask
         self.missiles_fired = SpriteGroup()
+        self.missile_cooldown_threshold = BASE_CANNON_COOLDOWN
+        self.missile_cooldown_counter = 0
         # TODO missile offset
+        # TODO missile sfx
         self.laser_sfx = laser_sfx
         self.laser_hit_sfx = laser_hit_sfx
         self.explosion_sfx = explosion_sfx
@@ -110,7 +113,7 @@ class Player(Actor):
         """Fires a missile from the players ship if they have picked up a
         missile to use."""
 
-        if self.missile_count > 0:
+        if self.missile_count > 0 and self.missile_cooldown_counter == 0:
             missile_pos = Vector2((self.pos.x), (self.pos.y - self.offset["y"]))
             missile = Actor(
                 missile_pos,
@@ -122,6 +125,7 @@ class Player(Actor):
             )
             self.missiles_fired.add(missile)
             self.missile_count -= 1
+            self.missile_cooldown_counter = 1
 
     def resolve_missiles(self, missile: Actor, objs: list) -> list:
         """Iterates through all Actor objects in the passed list of objects to
@@ -139,9 +143,11 @@ class Player(Actor):
                 self.missiles_fired.remove(missile)  # Stop drawing missile that hit
 
         return objs_to_kill
+
     
     def start_glow_effect(self):
         """Initiates a glow effect on the player."""
+        
         self.glow_effect_active = True
         self.glow_effect_end_time = pygame.time.get_ticks() + self.glow_effect_duration
         glow_color = pygame.Color("yellow")
@@ -149,6 +155,18 @@ class Player(Actor):
     
     def update(self):
         """Updates the player state, including handling the glow effect."""
+        
         if self.glow_effect_active and pygame.time.get_ticks() > self.glow_effect_end_time:
             self.glow_effect_active = False
             self.img = self.original_image.copy()
+
+
+    def cooldown_missiles(self):
+        """Ticks the cooldown for player missiles, should be callsed for
+        every iteration of the main game loop."""
+
+        if self.missile_cooldown_counter >= self.missile_cooldown_threshold:
+            self.missile_cooldown_counter = 0
+        elif self.missile_cooldown_counter > 0:
+            self.missile_cooldown_counter += 1
+
