@@ -1,5 +1,7 @@
 """Player object for the game."""
 
+import pygame
+
 from pygame.sprite import Group as SpriteGroup
 from pygame import Vector2
 from pygame.mask import Mask
@@ -49,6 +51,12 @@ class Player(Actor):
         self.laser_sfx = laser_sfx
         self.laser_hit_sfx = laser_hit_sfx
         self.explosion_sfx = explosion_sfx
+
+        # Attributes for glow effect
+        self.glow_effect_duration = 200  # Duration in milliseconds
+        self.glow_effect_active = False
+        self.glow_effect_end_time = 0
+        self.original_image = self.img.copy()
 
     def shoot(self):
         """Appends a new laser to the laser list if the player's cannon is not in cooldown."""
@@ -131,3 +139,16 @@ class Player(Actor):
                 self.missiles_fired.remove(missile)  # Stop drawing missile that hit
 
         return objs_to_kill
+    
+    def start_glow_effect(self):
+        """Initiates a glow effect on the player."""
+        self.glow_effect_active = True
+        self.glow_effect_end_time = pygame.time.get_ticks() + self.glow_effect_duration
+        glow_color = pygame.Color("yellow")
+        self.img.fill(glow_color, special_flags=pygame.BLEND_ADD)
+    
+    def update(self):
+        """Updates the player state, including handling the glow effect."""
+        if self.glow_effect_active and pygame.time.get_ticks() > self.glow_effect_end_time:
+            self.glow_effect_active = False
+            self.img = self.original_image.copy()

@@ -177,6 +177,9 @@ def main() -> None:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+        
+        # Update player
+        player.update()
 
         # Draw to screen here back to front
         SCREEN.blit(BG_IMG, (0, 60))  # Background first, 60px down for hud
