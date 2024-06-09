@@ -48,6 +48,7 @@ class Player(Actor):
         self.missile_cooldown_threshold = BASE_CANNON_COOLDOWN
         self.missile_cooldown_counter = 0
         # TODO missile offset
+        # TODO missile sfx
         self.laser_sfx = laser_sfx
         self.laser_hit_sfx = laser_hit_sfx
         self.explosion_sfx = explosion_sfx
