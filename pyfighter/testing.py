@@ -164,3 +164,10 @@ def test_resolve_hits():
     # Check asteroid hp is 3 - 1
     assert test_asteroid1.hp == 2
     assert test_asteroid2.hp == 3  # test non hit
+
+
+def test_powerup_pickup():
+    """This tests if the pickups are properly changing player stats."""
+
+    # TODO
+    pass
