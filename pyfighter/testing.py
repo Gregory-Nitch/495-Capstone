@@ -15,7 +15,7 @@ from models.player import Player
 from models.actor import Actor
 
 
-def test_cooldown_toggle():
+def test_cooldown_toggles():
     """Tests if the player's cannon cooldown counter is properly set after
     firing their cannon."""
 
@@ -40,6 +40,9 @@ def test_cooldown_toggle():
     assert test_player.cooldown_counter == 0
     test_player.shoot()
     assert test_player.cooldown_counter == 1
+    assert test_player.missile_cooldown_counter == 0
+    test_player.fire_missle()
+    assert test_player.missile_cooldown_counter == 1
 
 
 def test_collision():
