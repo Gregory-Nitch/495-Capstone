@@ -4,9 +4,10 @@ Power-ups provide various benefits to the player, such as increasing fire rate,
 speed, or missile count when picked up.
 """
 
+import pygame
 from models.actor import Actor
 from models.player import Player
-import pygame
+from constants import SFX_PATHS
 
 
 class PowerUp(Actor):
@@ -20,7 +21,6 @@ class PowerUp(Actor):
     def pickup(self, player: Player) -> None:
         """Applies the power-up effect to the player when picked up"""
 
-        # TODO check the rest of the powerup types below
         if self.power_type == "fire_rate" and player.cooldown_threshold > 0:
             player.cooldown_threshold -= 2
         elif self.power_type == "speed":
@@ -36,13 +36,13 @@ class PowerUp(Actor):
 
     def play_pickup_sound(self):
         """Plays a sound effect when the power-up is picked up."""
-        pickup_sound = pygame.mixer.Sound("./pyfighter/assets/zaid_sfx/powerup.mp3")
+        pickup_sound = pygame.mixer.Sound(SFX_PATHS["powerup_pickup"])
         pickup_sound.play()
 
     def display_pickup_effect(self, player: Player):
         """Displays a visual effect when the power-up is picked up."""
 
-        #$ TODO this is not working correctly - player doesnt retore to original color
+        # $ TODO this is not working correctly - player doesnt retore to original color
         # Example: Add a brief glow effect to the player
         original_color = player.img.get_at((0, 0))
         glow_color = pygame.Color("yellow")
