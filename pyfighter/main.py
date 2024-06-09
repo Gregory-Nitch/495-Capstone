@@ -213,6 +213,7 @@ def main() -> None:
             asteroids.add(new_asteroid)
 
         player.cooldown_cannon()
+        player.cooldown_missiles()
 
         # Check player inputs here
         keys = pygame.key.get_pressed()
