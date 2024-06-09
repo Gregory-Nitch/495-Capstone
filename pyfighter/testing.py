@@ -13,6 +13,7 @@ import pygame
 from pygame.mixer import Sound
 from models.player import Player
 from models.actor import Actor
+from models.powerup import PowerUp
 
 
 def test_cooldown_counters():
@@ -171,6 +172,8 @@ def test_resolve_hits():
 
 def test_powerup_pickup():
     """This tests if the pickups are properly changing player stats."""
+
+    pygame.init()
 
     # TODO
     pass
