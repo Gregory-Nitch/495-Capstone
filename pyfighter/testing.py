@@ -3,7 +3,7 @@ tests can be done via 'python -m pytest testing.py' from the command line in
 the ~/PyFighter/pyfighter/ directory. Note that file paths are different
 due to calling pytest from a lower directory, this was done to facilitate
 importing of required modules from the game. Also note that sometimes tests 
-will play sounds and need to initialze a game screen (your screen may flash).
+will play sounds and powerup to initialze a game screen (your screen may flash).
 
 IMPORTANT: ALL test methods must start with 'test' for pytest to find them
 
@@ -20,13 +20,19 @@ def test_cooldown_counters():
     """Tests if the player's cannon cooldown counter is properly set after
     firing their cannon."""
 
-    # Setup player and state
+    # Setup pygame state
     pygame.init()
+    pygame.display.set_mode((0, 0))
+
+    # Mock player
+    player_img = pygame.image.load(
+        "./assets/kenney_space-shooter-redux/PNG/playerShip1_orange.png"
+    ).convert_alpha()
     test_player = Player(
         pygame.Vector2(0, 0),
         0,
         0,
-        None,
+        player_img,
         None,
         {"x": 0, "y": 0},
         None,
@@ -111,11 +117,14 @@ def test_resolve_hits():
     test_laser_mask = pygame.mask.from_surface(test_laser_img)
 
     # Mock player object
+    player_img = pygame.image.load(
+        "./assets/kenney_space-shooter-redux/PNG/playerShip1_orange.png"
+    ).convert_alpha()
     test_player = Player(
         pygame.Vector2(0, 0),
         0,
         0,
-        None,
+        player_img,
         None,
         {"x": 0, "y": 0},
         test_laser_img,
@@ -175,5 +184,64 @@ def test_powerup_pickup():
 
     pygame.init()
 
-    # TODO
-    pass
+    # Load image for mock
+    powerup_img = pygame.image.load(
+        "./assets/kenney_space-shooter-redux/PNG/Power-ups/powerupBlue_star.png"
+    ).convert_alpha()
+    powerup_mask = pygame.mask.from_surface(powerup_img)
+
+    # Mock powerups
+    fire_rate_powerup = PowerUp(
+        pygame.Vector2(0, 0),
+        0,
+        powerup_img,
+        powerup_mask,
+        {"x": 0, "y": 0},
+        "fire_rate",
+        pygame.mixer.Sound("./assets/zaid_sfx/powerup.mp3"),
+    )
+    speed_powerup = PowerUp(
+        pygame.Vector2(0, 0),
+        0,
+        powerup_img,
+        powerup_mask,
+        {"x": 0, "y": 0},
+        "speed",
+        pygame.mixer.Sound("./assets/zaid_sfx/powerup.mp3"),
+    )
+    missile_powerup = PowerUp(
+        pygame.Vector2(0, 0),
+        0,
+        powerup_img,
+        powerup_mask,
+        {"x": 0, "y": 0},
+        "missiles",
+        pygame.mixer.Sound("./assets/zaid_sfx/powerup.mp3"),
+    )
+
+    # Mock player
+    player_img = pygame.image.load(
+        "./assets/kenney_space-shooter-redux/PNG/playerShip1_orange.png"
+    ).convert_alpha()
+    test_player = Player(
+        pygame.Vector2(0, 0),
+        0,
+        300,
+        player_img,
+        None,
+        {"x": 0, "y": 0},
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+        None,
+    )
+
+    fire_rate_powerup.pickup(test_player)
+    speed_powerup.pickup(test_player)
+    missile_powerup.pickup(test_player)
+    assert test_player.cooldown_threshold == 38
+    assert test_player.speed == 350
+    assert test_player.missile_count == 2

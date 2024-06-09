@@ -123,6 +123,7 @@ def proccess_obj_for_powerup(obj: Actor, player: Player) -> PowerUp:
         powerup_mask,
         IMG_OFFSETS[powerup_key],
         powerup_key,
+        pygame.mixer.Sound(SFX_PATHS["powerup_pickup"]),
     )
     return new_powerup
 
@@ -177,7 +178,7 @@ def main() -> None:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        
+
         # Update player
         player.update()
 
