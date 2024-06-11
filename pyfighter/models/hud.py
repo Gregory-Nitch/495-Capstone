@@ -1,22 +1,28 @@
-"""HUD object to display game state information to player"""
+"""HUD object to display game state information to player."""
+
+from pygame.font import SysFont
+from models.player import Player
 
 
 class HUD:
-    """HUD for game display"""
+    """HUD for game display, calling draw() will display the hud."""
 
-    def __init__(self) -> None:
+    def __init__(self):  # TODO move magic numbers up here (from draw())
         self.score_pos = 0
         self.hp_pos = 0
         self.speed_pos = 0
         self.fire_rate_pos = 0
         self.missile_count_pos = 0
 
-    def draw(self, screen, player, hud_font, control_font) -> None:
-        """Draws the HUD on the display"""
+    def draw(
+        self, screen, player: Player, hud_font: SysFont, control_font: SysFont
+    ) -> None:
+        """Draws the HUD on the display. Includes score, player state, and controls."""
+
         score_surface = hud_font.render(f"Score: {player.score}", True, (255, 255, 255))
         stats_surface = hud_font.render(
             f"Hull: {player.hp}  Thrust: {player.speed} "
-            + f" Fire Rate: {player.fire_rate}  Missiles: {player.missile_count}",
+            + f" Cannon Cooldown: {player.cooldown_threshold}  Missiles: {player.missile_count}",
             True,
             (255, 255, 255),
         )

@@ -1,13 +1,15 @@
-"""Class for asteroids in the game"""
+"""Class for asteroids in the game."""
 
-import random
-import pygame
+from pygame import mask
+from pygame import Vector2
+
 from models.actor import Actor
 
 
 class Asteroid(Actor):
     """An asteroid to be randomly generated"""
 
-    def __init__(self, pos, hp, speed, img, offset) -> None:
-        super().__init__(pos, hp, speed, img, offset)
-        self.img = pygame.transform.rotate(img, random.randrange(0, 359))
+    def __init__(self, pos: Vector2, hp: int, speed: int, img, offset: dict):
+        super().__init__(pos, hp, speed, img, mask.from_surface(img), offset)
+        # Above mask is created from the passed image because the img is
+        # randomly chosen
