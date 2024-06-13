@@ -31,6 +31,7 @@ from models.player import Player
 from models.asteroid import Asteroid
 from models.actor import Actor
 from models.powerup import PowerUp
+from models.enemy_fighter import EnemyFighter
 
 
 # Pygame globals, loading of game assets
@@ -43,6 +44,10 @@ BLUE_LASER = pygame.image.load(IMG_PATHS["blueLaser"]).convert_alpha()
 BLUE_LASER_MASK = pygame.mask.from_surface(BLUE_LASER)
 BLUE_MISSILE = pygame.image.load(IMG_PATHS["blueMissile"]).convert_alpha()
 BLUE_MISSILE_MASK = pygame.mask.from_surface(BLUE_MISSILE)
+E_FIGHER_IMG = pygame.image.load(IMG_PATHS["enemy_fighter"]).convert_alpha()
+E_FIGHER_MASK = pygame.mask.from_surface(E_FIGHER_IMG)
+RED_LASER = pygame.image.load(IMG_PATHS["red_laser"])
+RED_LASER_MASK = pygame.mask.from_surface(RED_LASER)
 ASTEROID_IMG_MAP = {}
 for ast in ASTEROID_LIST:
     ASTEROID_IMG_MAP[ast] = pygame.image.load(IMG_PATHS[ast]).convert_alpha()
@@ -170,6 +175,10 @@ def main() -> None:
     hud = HUD()
     asteroids = pygame.sprite.Group()
     powerups = pygame.sprite.Group()
+    enemy_lasers = pygame.sprite.Group()
+    fighter = None
+    # TODO left boat
+    # TODO right boat
 
     # Each iteration = 1 frame, game set to 60FPS
     while running:
@@ -188,9 +197,13 @@ def main() -> None:
         # Actors drawn here
         for p in powerups:
             p.draw(SCREEN)
+        if fighter:
+            fighter.draw(SCREEN)
         for missile in player.missiles_fired:
             missile.draw(SCREEN)
         for laser in player.lasers_fired:
+            laser.draw(SCREEN)
+        for laser in enemy_lasers:
             laser.draw(SCREEN)
         player.draw(SCREEN)
         for a in asteroids:
@@ -202,7 +215,7 @@ def main() -> None:
 
         # Perform state change here
         player.score = math.floor(time.time() - start_time)
-        difficulty = player.score * 0.0005  # Difficulty goes up as score increases
+        difficulty = player.score * 0.0004  # Difficulty goes up as score increases
         # Use of random produces a percent chance for an asteroid per frame
         if random.random() < difficulty:
             a_pos = pygame.Vector2(random.randrange(0, SCREEN_WIDTH), 0)
@@ -216,6 +229,22 @@ def main() -> None:
             )
             asteroids.add(new_asteroid)
 
+        difficulty = player.score * 0.00002
+        if not fighter and random.random() < difficulty:
+            fighter = EnemyFighter(
+                pygame.Vector2(random.randrange(0, SCREEN_WIDTH), SCREEN_HEIGHT + 100),
+                1,
+                BASE_SPEED,
+                E_FIGHER_IMG,
+                E_FIGHER_MASK,
+                IMG_OFFSETS["enemy_fighter"],
+                RED_LASER,
+                RED_LASER_MASK,
+                laser_sfx,
+            )
+
+        if fighter:
+            fighter.cooldown_cannon()
         player.cooldown_cannon()
         player.cooldown_missiles()
 
@@ -248,6 +277,13 @@ def main() -> None:
                 running = gameover_screen(lost_font, player)
             a.pos.y += a.speed * delta_time
 
+        if fighter:
+            fighter.tracking_module.seek_target(player, delta_time)
+            if fighter.has_target(player):
+                laser = fighter.shoot()
+                if laser:
+                    enemy_lasers.add(laser)
+
         for powerup in powerups:
             if powerup.pos.y - PLAYER_BUFFER > SCREEN.get_height():
                 powerups.remove(powerup)
@@ -258,10 +294,41 @@ def main() -> None:
 
         objs_to_kill = []
 
+        for laser in enemy_lasers:
+            if laser.pos.y < 0:
+                enemy_lasers.remove(laser)
+            if Actor.resolve_collision(player, laser):
+                player.hp -= 1
+                laser_hit_sfx.play()
+                if player.hp <= 0:
+                    explosion_sfx.play()
+                    running = gameover_screen(lost_font, player)
+                enemy_lasers.remove(laser)
+            for a in asteroids:
+                if Actor.resolve_collision(a, laser):
+                    a.hp -= 1
+                    laser_hit_sfx.play()
+                    if a.hp <= 0:
+                        asteroids.remove(a)
+                        objs_to_kill.append(a)
+                        explosion_sfx.play()
+                    enemy_lasers.remove(laser)
+            # TODO move this for (and others, see below) to a method
+            for obj in objs_to_kill:
+                if player.score % 3 == 1:  # Randomize drop chance from player score
+                    new_powerup = proccess_obj_for_powerup(obj, player)
+                    powerups.add(new_powerup)
+            laser.pos.y -= laser.speed * delta_time
+
+        # Need to empty objs to kill for next iteration
+        objs_to_kill.clear()
+
         for laser in player.lasers_fired:
             if laser.pos.y < 0:
                 player.lasers_fired.remove(laser)
             objs_to_kill = player.resolve_hits(laser, asteroids)
+            if fighter:
+                objs_to_kill += player.resolve_hits(laser, [fighter])
             # TODO add enemy ships to list of objs above (asteroids + enemies)
             for obj in objs_to_kill:
                 if player.score % 3 == 1:  # Randomize drop chance from player score
@@ -287,6 +354,10 @@ def main() -> None:
                     new_powerup = proccess_obj_for_powerup(obj, player)
                     powerups.add(new_powerup)
             missile.pos.y -= missile.speed * delta_time
+
+        if fighter and fighter.hp <= 0:
+            fighter.kill()
+            fighter = None
 
         # Need to empty objs kill list for next frame
         objs_to_kill.clear()

@@ -9,7 +9,6 @@ from pygame.mask import Mask
 from pygame.mixer import Sound
 from models.actor import Actor
 from models.player import Player
-from constants import SFX_PATHS
 
 
 class PowerUp(Actor):
