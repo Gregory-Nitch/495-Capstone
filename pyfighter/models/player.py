@@ -7,6 +7,7 @@ from pygame import Vector2
 from pygame.mask import Mask
 from pygame.mixer import Sound
 from models.actor import Actor
+from models.missile import Missile
 from constants import (
     IMG_OFFSETS,
     BASE_LASER_SPEED,
@@ -109,19 +110,22 @@ class Player(Actor):
         elif self.cooldown_counter > 0:
             self.cooldown_counter += 1
 
-    def fire_missle(self):
+    def fire_missle(self, targets: list):
         """Fires a missile from the players ship if they have picked up a
         missile to use."""
 
         if self.missile_count > 0 and self.missile_cooldown_counter == 0:
             missile_pos = Vector2((self.pos.x), (self.pos.y - self.offset["y"]))
-            missile = Actor(
+            lock = Missile.lock(self.pos, targets)
+            missile = Missile(
                 missile_pos,
-                0,
+                1,
                 self.speed,
                 self.missile_img,
                 self.missile_mask,
                 IMG_OFFSETS["blueMissile"],
+                lock,
+                90.0,
             )
             self.missiles_fired.add(missile)
             self.missile_count -= 1

@@ -177,8 +177,8 @@ def main() -> None:
     powerups = pygame.sprite.Group()
     enemy_lasers = pygame.sprite.Group()
     fighter = None
-    # TODO left boat
-    # TODO right boat
+    left_enemy_boat = None
+    right_enemy_boat = None
 
     # Each iteration = 1 frame, game set to 60FPS
     while running:
@@ -264,7 +264,7 @@ def main() -> None:
         if keys[pygame.K_SPACE]:
             player.shoot()
         if keys[pygame.K_LALT]:
-            player.fire_missle()
+            player.fire_missle([fighter, left_enemy_boat, right_enemy_boat])
         # ESC key = quit
         if keys[pygame.K_ESCAPE]:
             running = gameover_screen(lost_font, player)
@@ -353,7 +353,10 @@ def main() -> None:
                 if player.score % 3 == 1:  # Randomize drop chance from player score
                     new_powerup = proccess_obj_for_powerup(obj, player)
                     powerups.add(new_powerup)
-            missile.pos.y -= missile.speed * delta_time
+            if missile.target:
+                missile.seek(delta_time)
+            else:
+                missile.pos.y -= missile.speed * delta_time
 
         if fighter and fighter.hp <= 0:
             fighter.kill()
