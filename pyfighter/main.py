@@ -329,7 +329,6 @@ def main() -> None:
             objs_to_kill = player.resolve_hits(laser, asteroids)
             if fighter:
                 objs_to_kill += player.resolve_hits(laser, [fighter])
-            # TODO add enemy ships to list of objs above (asteroids + enemies)
             for obj in objs_to_kill:
                 if player.score % 3 == 1:  # Randomize drop chance from player score
                     new_powerup = proccess_obj_for_powerup(obj, player)
@@ -348,7 +347,8 @@ def main() -> None:
             ):
                 player.missiles_fired.remove(missile)
             objs_to_kill = player.resolve_missiles(missile, asteroids)
-            # TODO add enemy ships to list of objs above (asteroids + enemies)
+            if fighter:
+                objs_to_kill += player.resolve_missiles(missile, [fighter])
             for obj in objs_to_kill:
                 if player.score % 3 == 1:  # Randomize drop chance from player score
                     new_powerup = proccess_obj_for_powerup(obj, player)
