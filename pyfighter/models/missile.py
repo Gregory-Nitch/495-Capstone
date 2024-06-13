@@ -58,8 +58,6 @@ class Missile(Actor):
         elif self.heading < 0:
             self.heading += 359
 
-        print(self.heading)
-
         # Turn image and mask
         self.img_rotated = pygame.transform.rotate(self.img, self.heading)
         self.img_mask = pygame.mask.from_surface(self.img)
