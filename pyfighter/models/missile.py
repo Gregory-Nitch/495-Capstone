@@ -1,4 +1,5 @@
-""""""
+"""This class is used to represent a missile fired from both the player and
+AI eneimes and contains all the logic required to track a target."""
 
 import math
 import pygame.transform
@@ -8,7 +9,7 @@ from models.actor import Actor
 
 
 class Missile(Actor):
-    """"""
+    """Represents a missile fired by the player or AI enemy."""
 
     def __init__(
         self,
@@ -28,7 +29,9 @@ class Missile(Actor):
         self.img_mask = pygame.mask.from_surface(self.img)
 
     def seek(self, delta_time: int):
-        """"""
+        """Logic used to track a target, needs to be called on every frame.
+        The logic calculates various angles needed to guide a missile to
+        its target and allows forward arc movement."""
 
         # Calculate left or right turn
         dir_x = self.target.pos.x - self.pos.x
@@ -76,7 +79,8 @@ class Missile(Actor):
 
     # Overrides Actor.draw()
     def draw(self, screen) -> None:
-        """"""
+        """Draws a missile on the screen. Overrides Actor.draw() because
+        missile images need to be rotated as their heading changes."""
 
         screen.blit(
             self.img_rotated,
@@ -85,7 +89,8 @@ class Missile(Actor):
 
     @classmethod
     def lock(cls, firing_location: Vector2, targets: list) -> Actor:
-        """"""
+        """Takes in a list of targets and selects the closest one as the
+        missile's locked target. ->(classmethod)<-"""
 
         # Empty tuple for null return
         lock = (None, 0)
