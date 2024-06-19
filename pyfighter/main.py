@@ -53,6 +53,8 @@ RED_LASER = pygame.image.load(IMG_PATHS["red_laser"])
 RED_LASER_MASK = pygame.mask.from_surface(RED_LASER)
 START_IMG = pygame.transform.scale(pygame.image.load(IMG_PATHS["start_button"]).convert_alpha(), (384, 128))
 EXIT_IMG = pygame.transform.scale(pygame.image.load(IMG_PATHS["exit_button"]).convert_alpha(), (384, 128))
+CONTINUE_IMG = pygame.transform.scale(pygame.image.load(IMG_PATHS["continue_button"]).convert_alpha(), (384, 128))
+
 ASTEROID_IMG_MAP = {}
 for ast in ASTEROID_LIST:
     ASTEROID_IMG_MAP[ast] = pygame.image.load(IMG_PATHS[ast]).convert_alpha()
@@ -68,6 +70,7 @@ POWERUP_MASKS = {
 }
 START_BUTTON = button.Button(SCREEN.get_width() / 2 - 175, 350, START_IMG, 1)
 EXIT_BUTTON = button.Button(SCREEN.get_width() / 2 - 175, 600, EXIT_IMG, 1)
+CONTINUE_BUTTON = button.Button(SCREEN.get_width() / 2 - 175, 350, CONTINUE_IMG, 1)
 
 
 def main_menu() -> None:
@@ -105,7 +108,35 @@ def main_menu() -> None:
                 pygame.quit
                 sys.exit()
 
-#def pause_menu():
+def pause_menu():
+    paused = True
+    while paused:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    paused = False
+        
+        SCREEN.blit(BG_IMG, (0, 0))
+        
+        # Draw the continue button
+        if CONTINUE_BUTTON.draw(SCREEN):
+            paused = False
+        
+        # Draw the exit button
+        if EXIT_BUTTON.draw(SCREEN):
+            pygame.quit()
+            sys.exit()
+        
+        # Display the pause menu
+        title_font = pygame.font.SysFont("Bauhaus 93", 150)
+        title_label = title_font.render("Paused", 1, (255, 255, 255))
+        SCREEN.blit(title_label, (SCREEN.get_width() / 2 - title_label.get_width() / 2, 100))
+        
+        pygame.display.update()
+        CLOCK.tick(60)
     
     
     
@@ -287,7 +318,7 @@ def main() -> None:
             player.fire_missle([fighter, left_enemy_boat, right_enemy_boat])
         # ESC key = quit
         if keys[pygame.K_ESCAPE]:
-            running = gameover_screen(lost_font, player)
+            pause_menu()
 
         # Resolve events from state change here, kill = remove object
         for a in asteroids:

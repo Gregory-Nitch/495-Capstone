@@ -54,6 +54,7 @@ IMG_PATHS = {
     "red_laser": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Lasers/laserRed07.png",
     "start_button": "./pyfighter/assets/buttons/start_button.png",
     "exit_button": "./pyfighter/assets/buttons/exit_button.png",
+    "continue_button": "./pyfighter/assets/buttons/continue_button.png",
 }
 
 SFX_PATHS = {
