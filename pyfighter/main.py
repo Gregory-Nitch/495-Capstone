@@ -12,6 +12,9 @@ import math
 import time
 import random
 import pygame
+import button
+import sys
+import math
 from constants import (
     IMG_OFFSETS,
     IMG_PATHS,
@@ -37,7 +40,7 @@ from models.enemy_fighter import EnemyFighter
 # Pygame globals, loading of game assets
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 CLOCK = pygame.time.Clock()
-BG_IMG = pygame.image.load(IMG_PATHS["background"]).convert()
+BG_IMG = pygame.transform.scale(pygame.image.load(IMG_PATHS["background"]).convert(), (SCREEN_WIDTH, SCREEN_HEIGHT))
 PLYR_IMG = pygame.image.load(IMG_PATHS["player"]).convert_alpha()
 PLYR_MASK = pygame.mask.from_surface(PLYR_IMG)
 BLUE_LASER = pygame.image.load(IMG_PATHS["blueLaser"]).convert_alpha()
@@ -48,6 +51,8 @@ E_FIGHER_IMG = pygame.image.load(IMG_PATHS["enemy_fighter"]).convert_alpha()
 E_FIGHER_MASK = pygame.mask.from_surface(E_FIGHER_IMG)
 RED_LASER = pygame.image.load(IMG_PATHS["red_laser"])
 RED_LASER_MASK = pygame.mask.from_surface(RED_LASER)
+START_IMG = pygame.transform.scale(pygame.image.load(IMG_PATHS["start_button"]).convert_alpha(), (384, 128))
+EXIT_IMG = pygame.transform.scale(pygame.image.load(IMG_PATHS["exit_button"]).convert_alpha(), (384, 128))
 ASTEROID_IMG_MAP = {}
 for ast in ASTEROID_LIST:
     ASTEROID_IMG_MAP[ast] = pygame.image.load(IMG_PATHS[ast]).convert_alpha()
@@ -61,34 +66,49 @@ POWERUP_MASKS = {
     "speed": pygame.mask.from_surface(POWERUP_IMGS["speed"]),
     "missiles": pygame.mask.from_surface(POWERUP_IMGS["missiles"]),
 }
+START_BUTTON = button.Button(SCREEN.get_width() / 2 - 175, 350, START_IMG, 1)
+EXIT_BUTTON = button.Button(SCREEN.get_width() / 2 - 175, 600, EXIT_IMG, 1)
 
 
 def main_menu() -> None:
     """Prints the start screen before the game begins and waits until the
     player clicks the mouse button."""
 
-    title_font = pygame.font.SysFont("comicsans", 50)
+    title_font = pygame.font.SysFont("Bauhaus 93", 150)
     not_ready = True
+    menu_state = "menu"
+    start_time = time.time()
     while not_ready:
         SCREEN.blit(BG_IMG, (0, 0))
-        title_label = title_font.render(
-            "Press the mouse button to begin...", 1, (255, 255, 255)
-        )
+        
+        elapsed_time = time.time() - start_time
+        float_offset = math.sin(elapsed_time * 2) * 10
+        
+        title_label = title_font.render("PyFighter", 1, (255, 255, 255))
         SCREEN.blit(
-            title_label, (SCREEN.get_width() / 2 - title_label.get_width() / 2, 350)
+            title_label, (SCREEN.get_width() / 2 - title_label.get_width() / 2, 100+ float_offset)
         )
 
-        # Display above font
+        # Draw the start button
+        if START_BUTTON.draw(SCREEN):
+            return
+        # Draw the exit button
+        if EXIT_BUTTON.draw(SCREEN):
+            pygame.quit
+            sys.exit()
+        # Update the display after all elements are drawn
         pygame.display.update()
 
         # Until quit or player starts the game
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                not_ready = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                return
+                pygame.quit
+                sys.exit()
 
-
+#def pause_menu():
+    
+    
+    
 def gameover_screen(lost_font: pygame.font.SysFont, player: Player) -> bool:
     """Displays the game over screen to the player and returns a bool to end
     the main game loop."""
