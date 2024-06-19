@@ -8,13 +8,11 @@ Authors:
     - Wheeler, Jack
 """
 
+import sys
 import math
 import time
 import random
 import pygame
-import button
-import sys
-import math
 from constants import (
     IMG_OFFSETS,
     IMG_PATHS,
@@ -35,12 +33,15 @@ from models.asteroid import Asteroid
 from models.actor import Actor
 from models.powerup import PowerUp
 from models.enemy_fighter import EnemyFighter
+from models.button import Button
 
 
 # Pygame globals, loading of game assets
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 CLOCK = pygame.time.Clock()
-BG_IMG = pygame.transform.scale(pygame.image.load(IMG_PATHS["background"]).convert(), (SCREEN_WIDTH, SCREEN_HEIGHT))
+BG_IMG = pygame.transform.scale(
+    pygame.image.load(IMG_PATHS["background"]).convert(), (SCREEN_WIDTH, SCREEN_HEIGHT)
+)
 PLYR_IMG = pygame.image.load(IMG_PATHS["player"]).convert_alpha()
 PLYR_MASK = pygame.mask.from_surface(PLYR_IMG)
 BLUE_LASER = pygame.image.load(IMG_PATHS["blueLaser"]).convert_alpha()
@@ -51,9 +52,15 @@ E_FIGHER_IMG = pygame.image.load(IMG_PATHS["enemy_fighter"]).convert_alpha()
 E_FIGHER_MASK = pygame.mask.from_surface(E_FIGHER_IMG)
 RED_LASER = pygame.image.load(IMG_PATHS["red_laser"])
 RED_LASER_MASK = pygame.mask.from_surface(RED_LASER)
-START_IMG = pygame.transform.scale(pygame.image.load(IMG_PATHS["start_button"]).convert_alpha(), (384, 128))
-EXIT_IMG = pygame.transform.scale(pygame.image.load(IMG_PATHS["exit_button"]).convert_alpha(), (384, 128))
-CONTINUE_IMG = pygame.transform.scale(pygame.image.load(IMG_PATHS["continue_button"]).convert_alpha(), (384, 128))
+START_IMG = pygame.transform.scale(
+    pygame.image.load(IMG_PATHS["start_button"]).convert_alpha(), (384, 128)
+)
+EXIT_IMG = pygame.transform.scale(
+    pygame.image.load(IMG_PATHS["exit_button"]).convert_alpha(), (384, 128)
+)
+CONTINUE_IMG = pygame.transform.scale(
+    pygame.image.load(IMG_PATHS["continue_button"]).convert_alpha(), (384, 128)
+)
 
 ASTEROID_IMG_MAP = {}
 for ast in ASTEROID_LIST:
@@ -68,9 +75,9 @@ POWERUP_MASKS = {
     "speed": pygame.mask.from_surface(POWERUP_IMGS["speed"]),
     "missiles": pygame.mask.from_surface(POWERUP_IMGS["missiles"]),
 }
-START_BUTTON = button.Button(SCREEN.get_width() / 2 - 175, 350, START_IMG, 1)
-EXIT_BUTTON = button.Button(SCREEN.get_width() / 2 - 175, 600, EXIT_IMG, 1)
-CONTINUE_BUTTON = button.Button(SCREEN.get_width() / 2 - 175, 350, CONTINUE_IMG, 1)
+START_BUTTON = Button(SCREEN.get_width() / 2 - 175, 350, START_IMG, 1)
+EXIT_BUTTON = Button(SCREEN.get_width() / 2 - 175, 600, EXIT_IMG, 1)
+CONTINUE_BUTTON = Button(SCREEN.get_width() / 2 - 175, 350, CONTINUE_IMG, 1)
 
 
 def main_menu() -> None:
@@ -79,17 +86,17 @@ def main_menu() -> None:
 
     title_font = pygame.font.SysFont("Bauhaus 93", 150)
     not_ready = True
-    menu_state = "menu"
     start_time = time.time()
     while not_ready:
         SCREEN.blit(BG_IMG, (0, 0))
-        
+
         elapsed_time = time.time() - start_time
         float_offset = math.sin(elapsed_time * 2) * 10
-        
+
         title_label = title_font.render("PyFighter", 1, (255, 255, 255))
         SCREEN.blit(
-            title_label, (SCREEN.get_width() / 2 - title_label.get_width() / 2, 100+ float_offset)
+            title_label,
+            (SCREEN.get_width() / 2 - title_label.get_width() / 2, 100 + float_offset),
         )
 
         # Draw the start button
@@ -97,7 +104,7 @@ def main_menu() -> None:
             return
         # Draw the exit button
         if EXIT_BUTTON.draw(SCREEN):
-            pygame.quit
+            pygame.quit()
             sys.exit()
         # Update the display after all elements are drawn
         pygame.display.update()
@@ -105,10 +112,17 @@ def main_menu() -> None:
         # Until quit or player starts the game
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit
+                pygame.quit()
                 sys.exit()
 
-def pause_menu():
+
+def pause_menu() -> float:
+    """Contains the logic for the pause menu, prints the menu until user
+    requests exit or to continue. Returns the total amount of time spent in the
+    pause menu to add to start_time (prevents player score problems during a
+    paused state)."""
+
+    paused_time = time.time()
     paused = True
     while paused:
         for event in pygame.event.get():
@@ -118,33 +132,36 @@ def pause_menu():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     paused = False
-        
+
         SCREEN.blit(BG_IMG, (0, 0))
-        
+
         # Draw the continue button
         if CONTINUE_BUTTON.draw(SCREEN):
             paused = False
-        
+
         # Draw the exit button
         if EXIT_BUTTON.draw(SCREEN):
             pygame.quit()
             sys.exit()
-        
+
         # Display the pause menu
         title_font = pygame.font.SysFont("Bauhaus 93", 150)
         title_label = title_font.render("Paused", 1, (255, 255, 255))
-        SCREEN.blit(title_label, (SCREEN.get_width() / 2 - title_label.get_width() / 2, 100))
-        
+        SCREEN.blit(
+            title_label, (SCREEN.get_width() / 2 - title_label.get_width() / 2, 100)
+        )
+
         pygame.display.update()
         CLOCK.tick(60)
-    
-    
-    
+
+    return time.time() - paused_time
+
+
 def gameover_screen(lost_font: pygame.font.SysFont, player: Player) -> bool:
     """Displays the game over screen to the player and returns a bool to end
     the main game loop."""
 
-    pygame.time.wait(500)  # wait on loss before moving to game over
+    pygame.time.wait(500)  # Wait on loss before moving to game over
     running = False
     SCREEN.blit(BG_IMG, (0, 0))
     lost_label = lost_font.render(
@@ -318,7 +335,7 @@ def main() -> None:
             player.fire_missle([fighter, left_enemy_boat, right_enemy_boat])
         # ESC key = quit
         if keys[pygame.K_ESCAPE]:
-            pause_menu()
+            start_time += pause_menu()
 
         # Resolve events from state change here, kill = remove object
         for a in asteroids:
