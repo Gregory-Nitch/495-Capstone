@@ -2,6 +2,7 @@
 move actions for the AI."""
 
 from pygame import Mask, Vector2
+from pygame.surface import Surface
 from pygame.mixer import Sound
 from models.actor import Actor
 from models.player import Player
@@ -33,13 +34,15 @@ class EnemyFighter(Actor):
         self.laser_offset = IMG_OFFSETS["blueLaser"]
         self.cooldown_threshold = BASE_CANNON_COOLDOWN
 
-    def has_target(self, player: Player) -> bool:
-        """Checks if the enemy fighter is behind the player."""
+    def has_target(self, player: Player, screen: Surface) -> bool:
+        """Checks if the enemy fighter is behind the player and on the
+        screen."""
 
         return (
             player.pos.x > self.pos.x - 25
             and player.pos.x < self.pos.x + 25
             and player.pos.y < self.pos.y - 150
+            and self.pos.y < screen.get_height()
         )
 
     def shoot(self) -> Actor:

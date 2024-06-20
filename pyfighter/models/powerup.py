@@ -36,7 +36,7 @@ class PowerUp(Actor):
         if self.power_type == "fire_rate" and player.cooldown_threshold > 0:
             player.cooldown_threshold -= 2
         elif self.power_type == "speed":
-            player.speed += 50
+            player.speed += 25
         elif self.power_type == "missiles":
             player.missile_count += 1
 

@@ -39,7 +39,7 @@ class Player(Actor):
         self.cooldown_threshold = BASE_CANNON_COOLDOWN
         self.cooldown_counter = 0
         self.laser_dmg = BASE_LASER_DMG
-        self.missile_count = 1
+        self.missile_count = 2
         self.score = 0
         self.laser_img = laser_img
         self.lasers_fired = SpriteGroup()

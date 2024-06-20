@@ -196,7 +196,7 @@ def proccess_obj_for_powerup(obj: Actor, player: Player) -> PowerUp:
     powerup_mask = POWERUP_MASKS[powerup_key]
     new_powerup = PowerUp(
         spawn_loc,
-        BASE_SPEED + player.score,
+        BASE_SPEED + player.score * 0.5,
         powerup_img,
         powerup_mask,
         IMG_OFFSETS[powerup_key],
@@ -295,24 +295,24 @@ def main() -> None:
 
         # Perform state change here
         player.score = math.floor(time.time() - start_time)
-        difficulty = player.score * 0.0004  # Difficulty goes up as score increases
+        difficulty = player.score * 0.0003  # Difficulty goes up as score increases
         # Use of random produces a percent chance for an asteroid per frame
         if random.random() < difficulty:
-            a_pos = pygame.Vector2(random.randrange(0, SCREEN_WIDTH), 0)
+            a_pos = pygame.Vector2(random.randrange(50, SCREEN_WIDTH), 0)
             a_key = random.choice(ASTEROID_LIST)
             new_asteroid = Asteroid(
                 a_pos,
                 3,
-                BASE_SPEED + player.score,
+                BASE_SPEED + player.score * 0.5,
                 ASTEROID_IMG_MAP[a_key],
                 IMG_OFFSETS[a_key],
             )
             asteroids.add(new_asteroid)
 
-        difficulty = player.score * 0.00002
+        difficulty = player.score * 0.00001
         if not fighter and random.random() < difficulty:
             fighter = EnemyFighter(
-                pygame.Vector2(random.randrange(0, SCREEN_WIDTH), SCREEN_HEIGHT + 100),
+                pygame.Vector2(random.randrange(50, SCREEN_WIDTH), SCREEN_HEIGHT + 100),
                 1,
                 BASE_SPEED,
                 E_FIGHER_IMG,
@@ -323,7 +323,7 @@ def main() -> None:
                 laser_sfx,
             )
 
-        difficulty = player.score * 0.00001
+        difficulty = player.score * 0.000005
         if not left_enemy_boat and random.random() < difficulty:
             left_enemy_boat = EnemyBoat(
                 pygame.Vector2(-100, random.randrange(0, SCREEN_HEIGHT)),
@@ -386,24 +386,38 @@ def main() -> None:
                 asteroids.remove(a)
             elif Actor.resolve_collision(player, a):
                 running = gameover_screen(lost_font, player)
+            if fighter and Actor.resolve_collision(fighter, a):
+                fighter.pos.y += (a.speed + fighter.speed) * delta_time
+            if left_enemy_boat and Actor.resolve_collision(left_enemy_boat, a):
+                left_enemy_boat.pos.y += (a.speed + left_enemy_boat.speed) * delta_time
+            if right_enemy_boat and Actor.resolve_collision(right_enemy_boat, a):
+                right_enemy_boat.pos.y += (
+                    a.speed + right_enemy_boat.speed
+                ) * delta_time
             a.pos.y += a.speed * delta_time
 
         if fighter:
-            fighter.tracking_module.seek_target(player.pos, delta_time)
-            if fighter.has_target(player):
+            fighter.tracking_module.seek_target(
+                player.pos, delta_time, asteroids, SCREEN
+            )
+            if fighter.has_target(player, SCREEN):
                 laser = fighter.shoot()
                 if laser:
                     enemy_lasers.add(laser)
 
         if left_enemy_boat:
-            left_enemy_boat.tracking_module.seek_target(player.pos, delta_time)
+            left_enemy_boat.tracking_module.seek_target(
+                player.pos, delta_time, asteroids, SCREEN
+            )
             if left_enemy_boat.is_on_screen(SCREEN_WIDTH, SCREEN_HEIGHT):
                 missile = left_enemy_boat.launch_missile(player)
                 if missile:
                     enemy_missiles.add(missile)
 
         if right_enemy_boat:
-            right_enemy_boat.tracking_module.seek_target(player.pos, delta_time)
+            right_enemy_boat.tracking_module.seek_target(
+                player.pos, delta_time, asteroids, SCREEN
+            )
             if right_enemy_boat.is_on_screen(SCREEN_WIDTH, SCREEN_HEIGHT):
                 missile = right_enemy_boat.launch_missile(player)
                 if missile:
