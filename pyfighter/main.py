@@ -8,6 +8,7 @@ Authors:
     - Wheeler, Jack
 """
 
+import sys
 import math
 import time
 import random
@@ -31,18 +32,36 @@ from models.player import Player
 from models.asteroid import Asteroid
 from models.actor import Actor
 from models.powerup import PowerUp
+from models.enemy_fighter import EnemyFighter
+from models.button import Button
 
 
 # Pygame globals, loading of game assets
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 CLOCK = pygame.time.Clock()
-BG_IMG = pygame.image.load(IMG_PATHS["background"]).convert()
+BG_IMG = pygame.transform.scale(
+    pygame.image.load(IMG_PATHS["background"]).convert(), (SCREEN_WIDTH, SCREEN_HEIGHT)
+)
 PLYR_IMG = pygame.image.load(IMG_PATHS["player"]).convert_alpha()
 PLYR_MASK = pygame.mask.from_surface(PLYR_IMG)
 BLUE_LASER = pygame.image.load(IMG_PATHS["blueLaser"]).convert_alpha()
 BLUE_LASER_MASK = pygame.mask.from_surface(BLUE_LASER)
 BLUE_MISSILE = pygame.image.load(IMG_PATHS["blueMissile"]).convert_alpha()
 BLUE_MISSILE_MASK = pygame.mask.from_surface(BLUE_MISSILE)
+E_FIGHER_IMG = pygame.image.load(IMG_PATHS["enemy_fighter"]).convert_alpha()
+E_FIGHER_MASK = pygame.mask.from_surface(E_FIGHER_IMG)
+RED_LASER = pygame.image.load(IMG_PATHS["red_laser"])
+RED_LASER_MASK = pygame.mask.from_surface(RED_LASER)
+START_IMG = pygame.transform.scale(
+    pygame.image.load(IMG_PATHS["start_button"]).convert_alpha(), (384, 128)
+)
+EXIT_IMG = pygame.transform.scale(
+    pygame.image.load(IMG_PATHS["exit_button"]).convert_alpha(), (384, 128)
+)
+CONTINUE_IMG = pygame.transform.scale(
+    pygame.image.load(IMG_PATHS["continue_button"]).convert_alpha(), (384, 128)
+)
+
 ASTEROID_IMG_MAP = {}
 for ast in ASTEROID_LIST:
     ASTEROID_IMG_MAP[ast] = pygame.image.load(IMG_PATHS[ast]).convert_alpha()
@@ -56,39 +75,93 @@ POWERUP_MASKS = {
     "speed": pygame.mask.from_surface(POWERUP_IMGS["speed"]),
     "missiles": pygame.mask.from_surface(POWERUP_IMGS["missiles"]),
 }
+START_BUTTON = Button(SCREEN.get_width() / 2 - 175, 350, START_IMG, 1)
+EXIT_BUTTON = Button(SCREEN.get_width() / 2 - 175, 600, EXIT_IMG, 1)
+CONTINUE_BUTTON = Button(SCREEN.get_width() / 2 - 175, 350, CONTINUE_IMG, 1)
 
 
 def main_menu() -> None:
     """Prints the start screen before the game begins and waits until the
     player clicks the mouse button."""
 
-    title_font = pygame.font.SysFont("comicsans", 50)
+    title_font = pygame.font.SysFont("Bauhaus 93", 150)
     not_ready = True
+    start_time = time.time()
     while not_ready:
         SCREEN.blit(BG_IMG, (0, 0))
-        title_label = title_font.render(
-            "Press the mouse button to begin...", 1, (255, 255, 255)
-        )
+
+        elapsed_time = time.time() - start_time
+        float_offset = math.sin(elapsed_time * 2) * 10
+
+        title_label = title_font.render("PyFighter", 1, (255, 255, 255))
         SCREEN.blit(
-            title_label, (SCREEN.get_width() / 2 - title_label.get_width() / 2, 350)
+            title_label,
+            (SCREEN.get_width() / 2 - title_label.get_width() / 2, 100 + float_offset),
         )
 
-        # Display above font
+        # Draw the start button
+        if START_BUTTON.draw(SCREEN):
+            return
+        # Draw the exit button
+        if EXIT_BUTTON.draw(SCREEN):
+            pygame.quit()
+            sys.exit()
+        # Update the display after all elements are drawn
         pygame.display.update()
 
         # Until quit or player starts the game
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                not_ready = False
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                return
+                pygame.quit()
+                sys.exit()
+
+
+def pause_menu() -> float:
+    """Contains the logic for the pause menu, prints the menu until user
+    requests exit or to continue. Returns the total amount of time spent in the
+    pause menu to add to start_time (prevents player score problems during a
+    paused state)."""
+
+    paused_time = time.time()
+    paused = True
+    while paused:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    paused = False
+
+        SCREEN.blit(BG_IMG, (0, 0))
+
+        # Draw the continue button
+        if CONTINUE_BUTTON.draw(SCREEN):
+            paused = False
+
+        # Draw the exit button
+        if EXIT_BUTTON.draw(SCREEN):
+            pygame.quit()
+            sys.exit()
+
+        # Display the pause menu
+        title_font = pygame.font.SysFont("Bauhaus 93", 150)
+        title_label = title_font.render("Paused", 1, (255, 255, 255))
+        SCREEN.blit(
+            title_label, (SCREEN.get_width() / 2 - title_label.get_width() / 2, 100)
+        )
+
+        pygame.display.update()
+        CLOCK.tick(60)
+
+    return time.time() - paused_time
 
 
 def gameover_screen(lost_font: pygame.font.SysFont, player: Player) -> bool:
     """Displays the game over screen to the player and returns a bool to end
     the main game loop."""
 
-    pygame.time.wait(500)  # wait on loss before moving to game over
+    pygame.time.wait(500)  # Wait on loss before moving to game over
     running = False
     SCREEN.blit(BG_IMG, (0, 0))
     lost_label = lost_font.render(
@@ -170,6 +243,10 @@ def main() -> None:
     hud = HUD()
     asteroids = pygame.sprite.Group()
     powerups = pygame.sprite.Group()
+    enemy_lasers = pygame.sprite.Group()
+    fighter = None
+    left_enemy_boat = None
+    right_enemy_boat = None
 
     # Each iteration = 1 frame, game set to 60FPS
     while running:
@@ -188,9 +265,13 @@ def main() -> None:
         # Actors drawn here
         for p in powerups:
             p.draw(SCREEN)
+        if fighter:
+            fighter.draw(SCREEN)
         for missile in player.missiles_fired:
             missile.draw(SCREEN)
         for laser in player.lasers_fired:
+            laser.draw(SCREEN)
+        for laser in enemy_lasers:
             laser.draw(SCREEN)
         player.draw(SCREEN)
         for a in asteroids:
@@ -202,7 +283,7 @@ def main() -> None:
 
         # Perform state change here
         player.score = math.floor(time.time() - start_time)
-        difficulty = player.score * 0.0005  # Difficulty goes up as score increases
+        difficulty = player.score * 0.0004  # Difficulty goes up as score increases
         # Use of random produces a percent chance for an asteroid per frame
         if random.random() < difficulty:
             a_pos = pygame.Vector2(random.randrange(0, SCREEN_WIDTH), 0)
@@ -216,6 +297,22 @@ def main() -> None:
             )
             asteroids.add(new_asteroid)
 
+        difficulty = player.score * 0.00002
+        if not fighter and random.random() < difficulty:
+            fighter = EnemyFighter(
+                pygame.Vector2(random.randrange(0, SCREEN_WIDTH), SCREEN_HEIGHT + 100),
+                1,
+                BASE_SPEED,
+                E_FIGHER_IMG,
+                E_FIGHER_MASK,
+                IMG_OFFSETS["enemy_fighter"],
+                RED_LASER,
+                RED_LASER_MASK,
+                laser_sfx,
+            )
+
+        if fighter:
+            fighter.cooldown_cannon()
         player.cooldown_cannon()
         player.cooldown_missiles()
 
@@ -235,10 +332,10 @@ def main() -> None:
         if keys[pygame.K_SPACE]:
             player.shoot()
         if keys[pygame.K_LALT]:
-            player.fire_missle()
+            player.fire_missle([fighter, left_enemy_boat, right_enemy_boat])
         # ESC key = quit
         if keys[pygame.K_ESCAPE]:
-            running = gameover_screen(lost_font, player)
+            start_time += pause_menu()
 
         # Resolve events from state change here, kill = remove object
         for a in asteroids:
@@ -247,6 +344,13 @@ def main() -> None:
             elif Actor.resolve_collision(player, a):
                 running = gameover_screen(lost_font, player)
             a.pos.y += a.speed * delta_time
+
+        if fighter:
+            fighter.tracking_module.seek_target(player, delta_time)
+            if fighter.has_target(player):
+                laser = fighter.shoot()
+                if laser:
+                    enemy_lasers.add(laser)
 
         for powerup in powerups:
             if powerup.pos.y - PLAYER_BUFFER > SCREEN.get_height():
@@ -258,11 +362,41 @@ def main() -> None:
 
         objs_to_kill = []
 
+        for laser in enemy_lasers:
+            if laser.pos.y < 0:
+                enemy_lasers.remove(laser)
+            if Actor.resolve_collision(player, laser):
+                player.hp -= 1
+                laser_hit_sfx.play()
+                if player.hp <= 0:
+                    explosion_sfx.play()
+                    running = gameover_screen(lost_font, player)
+                enemy_lasers.remove(laser)
+            for a in asteroids:
+                if Actor.resolve_collision(a, laser):
+                    a.hp -= 1
+                    laser_hit_sfx.play()
+                    if a.hp <= 0:
+                        asteroids.remove(a)
+                        objs_to_kill.append(a)
+                        explosion_sfx.play()
+                    enemy_lasers.remove(laser)
+            # TODO move this for (and others, see below) to a method
+            for obj in objs_to_kill:
+                if player.score % 3 == 1:  # Randomize drop chance from player score
+                    new_powerup = proccess_obj_for_powerup(obj, player)
+                    powerups.add(new_powerup)
+            laser.pos.y -= laser.speed * delta_time
+
+        # Need to empty objs to kill for next iteration
+        objs_to_kill.clear()
+
         for laser in player.lasers_fired:
             if laser.pos.y < 0:
                 player.lasers_fired.remove(laser)
             objs_to_kill = player.resolve_hits(laser, asteroids)
-            # TODO add enemy ships to list of objs above (asteroids + enemies)
+            if fighter:
+                objs_to_kill += player.resolve_hits(laser, [fighter])
             for obj in objs_to_kill:
                 if player.score % 3 == 1:  # Randomize drop chance from player score
                     new_powerup = proccess_obj_for_powerup(obj, player)
@@ -281,12 +415,20 @@ def main() -> None:
             ):
                 player.missiles_fired.remove(missile)
             objs_to_kill = player.resolve_missiles(missile, asteroids)
-            # TODO add enemy ships to list of objs above (asteroids + enemies)
+            if fighter:
+                objs_to_kill += player.resolve_missiles(missile, [fighter])
             for obj in objs_to_kill:
                 if player.score % 3 == 1:  # Randomize drop chance from player score
                     new_powerup = proccess_obj_for_powerup(obj, player)
                     powerups.add(new_powerup)
-            missile.pos.y -= missile.speed * delta_time
+            if missile.target:
+                missile.seek(delta_time)
+            else:
+                missile.pos.y -= missile.speed * delta_time
+
+        if fighter and fighter.hp <= 0:
+            fighter.kill()
+            fighter = None
 
         # Need to empty objs kill list for next frame
         objs_to_kill.clear()

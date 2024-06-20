@@ -37,10 +37,8 @@ class Actor(Sprite):
     @classmethod
     def resolve_collision(cls, obj1, obj2) -> bool:
         """Resolves collision between two Actor objects by returning a bool if
-        they are touching. Offsets handled internally. Not tied to a class
-        instance."""
+        they are touching. Offsets handled internally. ->(classmethod)<-"""
 
-        # +5 is for image offset tuning
-        offset_x = (obj2.pos.x - obj2.offset["x"] + 5) - (obj1.pos.x - obj1.offset["x"])
+        offset_x = (obj2.pos.x - obj2.offset["x"]) - (obj1.pos.x - obj1.offset["x"])
         offset_y = (obj2.pos.y - obj2.offset["y"]) - (obj1.pos.y - obj1.offset["y"])
         return obj1.img_mask.overlap(obj2.img_mask, (offset_x, offset_y)) is not None

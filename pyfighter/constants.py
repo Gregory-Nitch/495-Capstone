@@ -6,7 +6,7 @@ SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 1084
 HUD_HEIGHT = 60
 PLAYER_BUFFER = 150
-BASE_SPEED = 150  # used for asteroids and enemies
+BASE_SPEED = 100  # Used for asteroids and enemies
 BASE_LASER_SPEED = 1000
 PLAYER_BASE_SPEED = 300
 BASE_CANNON_COOLDOWN = 40
@@ -30,6 +30,7 @@ IMG_OFFSETS = {  # TODO revisit asteroids (no longer rotating imgs)
     "fire_rate": {"x": 17, "y": 16},
     "speed": {"x": 17, "y": 16},
     "missiles": {"x": 17, "y": 16},
+    "enemy_fighter": {"x": 46, "y": 42},
 }
 
 # Note: use convert alpha for images with transparency (not done here)
@@ -49,6 +50,11 @@ IMG_PATHS = {
     "fire_rate": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Power-ups/powerupBlue_star.png",
     "speed": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Power-ups/powerupGreen_star.png",
     "missiles": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Power-ups/powerupRed_star.png",
+    "enemy_fighter": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Enemies/enemyBlack1.png",
+    "red_laser": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Lasers/laserRed07.png",
+    "start_button": "./pyfighter/assets/buttons/start_button.png",
+    "exit_button": "./pyfighter/assets/buttons/exit_button.png",
+    "continue_button": "./pyfighter/assets/buttons/continue_button.png",
 }
 
 SFX_PATHS = {

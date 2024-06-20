@@ -28,6 +28,9 @@ def test_cooldown_counters():
     player_img = pygame.image.load(
         "./assets/kenney_space-shooter-redux/PNG/playerShip1_orange.png"
     ).convert_alpha()
+    missile_img = pygame.image.load(
+        "./assets/kenney_space-shooter-extension/PNG/Sprites/Missiles/spaceMissiles_001.png"
+    ).convert_alpha()
     test_player = Player(
         pygame.Vector2(0, 0),
         0,
@@ -38,17 +41,18 @@ def test_cooldown_counters():
         None,
         None,
         Sound("./assets/zaid_sfx/laser1.wav"),
-        None,
+        missile_img,
         None,
         None,
         None,
     )
+
     # Test counters
     assert test_player.cooldown_counter == 0
     test_player.shoot()
     assert test_player.cooldown_counter == 1
     assert test_player.missile_cooldown_counter == 0
-    test_player.fire_missle()
+    test_player.fire_missle([test_player])
     assert test_player.missile_cooldown_counter == 1
 
 
