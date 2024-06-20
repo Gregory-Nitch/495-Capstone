@@ -36,14 +36,11 @@ class EnemyFighter(Actor):
     def has_target(self, player: Player) -> bool:
         """Checks if the enemy fighter is behind the player."""
 
-        if (
+        return (
             player.pos.x > self.pos.x - 25
             and player.pos.x < self.pos.x + 25
             and player.pos.y < self.pos.y - 150
-        ):
-            return True
-
-        return False
+        )
 
     def shoot(self) -> Actor:
         """Method called when the fighter is behind the player, returns an Actor

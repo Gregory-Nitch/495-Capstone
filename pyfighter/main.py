@@ -33,6 +33,7 @@ from models.asteroid import Asteroid
 from models.actor import Actor
 from models.powerup import PowerUp
 from models.enemy_fighter import EnemyFighter
+from models.enemy_boat import EnemyBoat
 from models.button import Button
 
 
@@ -50,8 +51,12 @@ BLUE_MISSILE = pygame.image.load(IMG_PATHS["blueMissile"]).convert_alpha()
 BLUE_MISSILE_MASK = pygame.mask.from_surface(BLUE_MISSILE)
 E_FIGHER_IMG = pygame.image.load(IMG_PATHS["enemy_fighter"]).convert_alpha()
 E_FIGHER_MASK = pygame.mask.from_surface(E_FIGHER_IMG)
+E_BOAT_IMG = pygame.image.load(IMG_PATHS["enemy_boat"]).convert_alpha()
+E_BOAT_MASK = pygame.mask.from_surface(E_BOAT_IMG)
 RED_LASER = pygame.image.load(IMG_PATHS["red_laser"])
 RED_LASER_MASK = pygame.mask.from_surface(RED_LASER)
+RED_MISSILE = pygame.image.load(IMG_PATHS["red_missile"]).convert_alpha()
+RED_MISSILE_MASK = pygame.mask.from_surface(RED_MISSILE)
 START_IMG = pygame.transform.scale(
     pygame.image.load(IMG_PATHS["start_button"]).convert_alpha(), (384, 128)
 )
@@ -244,6 +249,7 @@ def main() -> None:
     asteroids = pygame.sprite.Group()
     powerups = pygame.sprite.Group()
     enemy_lasers = pygame.sprite.Group()
+    enemy_missiles = pygame.sprite.Group()
     fighter = None
     left_enemy_boat = None
     right_enemy_boat = None
@@ -267,12 +273,18 @@ def main() -> None:
             p.draw(SCREEN)
         if fighter:
             fighter.draw(SCREEN)
+        if left_enemy_boat:
+            left_enemy_boat.draw(SCREEN)
+        if right_enemy_boat:
+            right_enemy_boat.draw(SCREEN)
         for missile in player.missiles_fired:
             missile.draw(SCREEN)
         for laser in player.lasers_fired:
             laser.draw(SCREEN)
         for laser in enemy_lasers:
             laser.draw(SCREEN)
+        for missile in enemy_missiles:
+            missile.draw(SCREEN)
         player.draw(SCREEN)
         for a in asteroids:
             a.draw(SCREEN)
@@ -311,8 +323,39 @@ def main() -> None:
                 laser_sfx,
             )
 
+        difficulty = player.score * 0.00001
+        if not left_enemy_boat and random.random() < difficulty:
+            left_enemy_boat = EnemyBoat(
+                pygame.Vector2(-100, random.randrange(0, SCREEN_HEIGHT)),
+                1,
+                BASE_SPEED,
+                E_BOAT_IMG,
+                E_BOAT_MASK,
+                "left_boat",
+                IMG_OFFSETS["enemy_boat"],
+                RED_MISSILE,
+                RED_MISSILE_MASK,
+            )
+
+        if not right_enemy_boat and random.random() < difficulty:
+            right_enemy_boat = EnemyBoat(
+                pygame.Vector2(SCREEN_WIDTH + 100, random.randrange(0, SCREEN_HEIGHT)),
+                1,
+                BASE_SPEED,
+                E_BOAT_IMG,
+                E_BOAT_MASK,
+                "right_boat",
+                IMG_OFFSETS["enemy_boat"],
+                RED_MISSILE,
+                RED_MISSILE_MASK,
+            )
+
         if fighter:
             fighter.cooldown_cannon()
+        if left_enemy_boat:
+            left_enemy_boat.cooldown_missiles()
+        if right_enemy_boat:
+            right_enemy_boat.cooldown_missiles()
         player.cooldown_cannon()
         player.cooldown_missiles()
 
@@ -346,11 +389,25 @@ def main() -> None:
             a.pos.y += a.speed * delta_time
 
         if fighter:
-            fighter.tracking_module.seek_target(player, delta_time)
+            fighter.tracking_module.seek_target(player.pos, delta_time)
             if fighter.has_target(player):
                 laser = fighter.shoot()
                 if laser:
                     enemy_lasers.add(laser)
+
+        if left_enemy_boat:
+            left_enemy_boat.tracking_module.seek_target(player.pos, delta_time)
+            if left_enemy_boat.is_on_screen(SCREEN_WIDTH, SCREEN_HEIGHT):
+                missile = left_enemy_boat.launch_missile(player)
+                if missile:
+                    enemy_missiles.add(missile)
+
+        if right_enemy_boat:
+            right_enemy_boat.tracking_module.seek_target(player.pos, delta_time)
+            if right_enemy_boat.is_on_screen(SCREEN_WIDTH, SCREEN_HEIGHT):
+                missile = right_enemy_boat.launch_missile(player)
+                if missile:
+                    enemy_missiles.add(missile)
 
         for powerup in powerups:
             if powerup.pos.y - PLAYER_BUFFER > SCREEN.get_height():
@@ -391,12 +448,44 @@ def main() -> None:
         # Need to empty objs to kill for next iteration
         objs_to_kill.clear()
 
+        for missile in enemy_missiles:
+            if missile.is_off_screen(SCREEN):
+                enemy_missiles.remove(missile)
+            if Actor.resolve_collision(player, missile):
+                player.hp -= 1
+                explosion_sfx.play()
+                if player.hp <= 0:
+                    running = gameover_screen(lost_font, player)
+                enemy_missiles.remove(missile)
+            for a in asteroids:
+                if Actor.resolve_collision(a, missile):
+                    a.hp -= 3
+                    explosion_sfx.play()
+                    if a.hp <= 0:
+                        asteroids.remove(a)
+                        objs_to_kill.append(a)
+                    enemy_missiles.remove(missile)
+            # TODO move this for (and others, see below) to a method
+            for obj in objs_to_kill:
+                if player.score % 3 == 1:  # Randomize drop chance from player score
+                    new_powerup = proccess_obj_for_powerup(obj, player)
+                    powerups.add(new_powerup)
+            if missile.target:
+                missile.seek(delta_time)
+            else:
+                missile.pos.y -= missile.speed * delta_time
+
+        # Need to empty objs to kill for next iteration
+        objs_to_kill.clear()
+
         for laser in player.lasers_fired:
             if laser.pos.y < 0:
                 player.lasers_fired.remove(laser)
             objs_to_kill = player.resolve_hits(laser, asteroids)
-            if fighter:
-                objs_to_kill += player.resolve_hits(laser, [fighter])
+            objs_to_kill += player.resolve_hits(laser, enemy_missiles)
+            objs_to_kill += player.resolve_hits(
+                laser, [fighter, left_enemy_boat, right_enemy_boat]
+            )
             for obj in objs_to_kill:
                 if player.score % 3 == 1:  # Randomize drop chance from player score
                     new_powerup = proccess_obj_for_powerup(obj, player)
@@ -407,16 +496,12 @@ def main() -> None:
         objs_to_kill.clear()
 
         for missile in player.missiles_fired:
-            if (
-                missile.pos.y < 0
-                or missile.pos.y > SCREEN.get_height()
-                or missile.pos.x < 0
-                or missile.pos.x > SCREEN.get_width()
-            ):
+            if missile.is_off_screen(SCREEN):
                 player.missiles_fired.remove(missile)
             objs_to_kill = player.resolve_missiles(missile, asteroids)
-            if fighter:
-                objs_to_kill += player.resolve_missiles(missile, [fighter])
+            objs_to_kill += player.resolve_missiles(
+                missile, [fighter, left_enemy_boat, right_enemy_boat]
+            )
             for obj in objs_to_kill:
                 if player.score % 3 == 1:  # Randomize drop chance from player score
                     new_powerup = proccess_obj_for_powerup(obj, player)
@@ -429,6 +514,14 @@ def main() -> None:
         if fighter and fighter.hp <= 0:
             fighter.kill()
             fighter = None
+
+        if left_enemy_boat and left_enemy_boat.hp <= 0:
+            left_enemy_boat.kill()
+            left_enemy_boat = None
+
+        if right_enemy_boat and right_enemy_boat.hp <= 0:
+            right_enemy_boat.kill()
+            right_enemy_boat = None
 
         # Need to empty objs kill list for next frame
         objs_to_kill.clear()

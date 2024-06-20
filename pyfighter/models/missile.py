@@ -87,6 +87,17 @@ class Missile(Actor):
             (self.pos.x - self.offset["x"], self.pos.y - self.offset["y"]),
         )
 
+    def is_off_screen(self, screen) -> bool:
+        """Checks if a missile is off the screen, off screen -> true else
+        false."""
+
+        return (
+            self.pos.y < 0
+            or self.pos.y > screen.get_height()
+            or self.pos.x < 0
+            or self.pos.x > screen.get_width()
+        )
+
     @classmethod
     def lock(cls, firing_location: Vector2, targets: list) -> Actor:
         """Takes in a list of targets and selects the closest one as the

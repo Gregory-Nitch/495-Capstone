@@ -4,7 +4,6 @@ identifying the type of AI to implement.
 
 import math
 from pygame import Vector2
-from models.player import Player
 from models.actor import Actor
 
 
@@ -17,18 +16,21 @@ class AITrackingModule:
         # Fighter seeks to 100px behind player
         if logic_type == "fighter":
             self.target_offset.y += 200
+        # Boats offset left and right of player
+        elif logic_type == "left_boat":
+            self.target_offset.x -= 300
+        elif logic_type == "right_boat":
+            self.target_offset.x += 300
 
-        # TODO check 'left_boat' && 'right_boat' types
-
-    def seek_target(self, player: Player, delta_time: int) -> None:
+    def seek_target(self, target_pos: Vector2, delta_time: int) -> None:
         """Calculates the distance and direction to the player, then moves
         the enclosing class instance in that direction."""
 
-        dir_x = (player.pos.x + self.target_offset.x) - self.ai_obj.pos.x
-        dir_y = (player.pos.y + self.target_offset.y) - self.ai_obj.pos.y
+        dir_x = (target_pos.x + self.target_offset.x) - self.ai_obj.pos.x
+        dir_y = (target_pos.y + self.target_offset.y) - self.ai_obj.pos.y
         distance = math.hypot(dir_x, dir_y)
 
-        # Check if target reached (prevents img vibration)
+        # Check if target reached (prevents image vibration)
         if distance < 1:
             return
 
