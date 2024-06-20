@@ -1,4 +1,5 @@
-""""""
+"""Contains the enemy missile boat class that fires missiles at the player from
+their left and right."""
 
 from pygame import Mask, Vector2
 from models.actor import Actor
@@ -9,7 +10,7 @@ from constants import BOAT_MISSILE_COOLDOWN, IMG_OFFSETS
 
 
 class EnemyBoat(Actor):
-    """"""
+    """Represents an enemy ship that fires missiles at the player."""
 
     def __init__(
         self,
@@ -31,7 +32,8 @@ class EnemyBoat(Actor):
         self.missile_cooldown_counter = 0
 
     def is_on_screen(self, screen_width, screen_height) -> bool:
-        """"""
+        """Checks if the missile boat is on the screen, used to prevent it from
+        firing if it is not on the screen."""
 
         return (
             self.pos.x > 0
@@ -50,7 +52,8 @@ class EnemyBoat(Actor):
             self.missile_cooldown_counter += 1
 
     def launch_missile(self, player: Player) -> Missile:
-        """"""
+        """Launches a new missile from the boat and returns the missile
+        reference for seeking and tracking."""
 
         if self.missile_cooldown_counter == 0:
             missile_pos = Vector2((self.pos.x), (self.pos.y - self.offset["y"]))
