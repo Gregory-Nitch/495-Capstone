@@ -196,7 +196,7 @@ def proccess_obj_for_powerup(obj: Actor, player: Player) -> PowerUp:
     powerup_mask = POWERUP_MASKS[powerup_key]
     new_powerup = PowerUp(
         spawn_loc,
-        BASE_SPEED + player.score * 0.5,
+        BASE_SPEED + player.score * 0.25,
         powerup_img,
         powerup_mask,
         IMG_OFFSETS[powerup_key],
@@ -295,7 +295,8 @@ def main() -> None:
 
         # Perform state change here
         player.score = math.floor(time.time() - start_time)
-        difficulty = player.score * 0.0003  # Difficulty goes up as score increases
+        difficulty = player.score * 0.001  # Difficulty goes up as score increases
+        difficulty = min(difficulty, 0.02)  # But is capped at 2% chance per frame
         # Use of random produces a percent chance for an asteroid per frame
         if random.random() < difficulty:
             a_pos = pygame.Vector2(random.randrange(50, SCREEN_WIDTH), 0)
@@ -303,13 +304,13 @@ def main() -> None:
             new_asteroid = Asteroid(
                 a_pos,
                 3,
-                BASE_SPEED + player.score * 0.5,
+                BASE_SPEED + player.score * 0.25,
                 ASTEROID_IMG_MAP[a_key],
                 IMG_OFFSETS[a_key],
             )
             asteroids.add(new_asteroid)
 
-        difficulty = player.score * 0.00001
+        difficulty = player.score * 0.000004
         if not fighter and random.random() < difficulty:
             fighter = EnemyFighter(
                 pygame.Vector2(random.randrange(50, SCREEN_WIDTH), SCREEN_HEIGHT + 100),
@@ -323,7 +324,7 @@ def main() -> None:
                 laser_sfx,
             )
 
-        difficulty = player.score * 0.000005
+        difficulty = player.score * 0.000001
         if not left_enemy_boat and random.random() < difficulty:
             left_enemy_boat = EnemyBoat(
                 pygame.Vector2(-100, random.randrange(0, SCREEN_HEIGHT)),
@@ -454,7 +455,7 @@ def main() -> None:
                     enemy_lasers.remove(laser)
             # TODO move this for (and others, see below) to a method
             for obj in objs_to_kill:
-                if player.score % 3 == 1:  # Randomize drop chance from player score
+                if random.random() < 0.3:  # Randomize drop chance from player score
                     new_powerup = proccess_obj_for_powerup(obj, player)
                     powerups.add(new_powerup)
             laser.pos.y -= laser.speed * delta_time
@@ -481,7 +482,7 @@ def main() -> None:
                     enemy_missiles.remove(missile)
             # TODO move this for (and others, see below) to a method
             for obj in objs_to_kill:
-                if player.score % 3 == 1:  # Randomize drop chance from player score
+                if random.random() < 0.3:  # Randomize drop chance from player score
                     new_powerup = proccess_obj_for_powerup(obj, player)
                     powerups.add(new_powerup)
             if missile.target:
@@ -501,7 +502,7 @@ def main() -> None:
                 laser, [fighter, left_enemy_boat, right_enemy_boat]
             )
             for obj in objs_to_kill:
-                if player.score % 3 == 1:  # Randomize drop chance from player score
+                if random.random() < 0.3:  # Randomize drop chance from player score
                     new_powerup = proccess_obj_for_powerup(obj, player)
                     powerups.add(new_powerup)
             laser.pos.y -= laser.speed * delta_time
@@ -517,7 +518,7 @@ def main() -> None:
                 missile, [fighter, left_enemy_boat, right_enemy_boat]
             )
             for obj in objs_to_kill:
-                if player.score % 3 == 1:  # Randomize drop chance from player score
+                if random.random() < 0.3:  # Randomize drop chance from player score
                     new_powerup = proccess_obj_for_powerup(obj, player)
                     powerups.add(new_powerup)
             if missile.target:

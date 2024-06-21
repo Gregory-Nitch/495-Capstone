@@ -33,10 +33,10 @@ class PowerUp(Actor):
         """Applies the power-up effect to the player when picked up"""
 
         # Only decrement if player cooldown is above 0 -> prevents negative cooldown
-        if self.power_type == "fire_rate" and player.cooldown_threshold > 0:
-            player.cooldown_threshold -= 2
+        if self.power_type == "fire_rate" and player.cooldown_threshold > 2:
+            player.cooldown_threshold -= 1
         elif self.power_type == "speed":
-            player.speed += 25
+            player.speed += 20
         elif self.power_type == "missiles":
             player.missile_count += 1
 
