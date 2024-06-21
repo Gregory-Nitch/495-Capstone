@@ -34,6 +34,7 @@ class Player(Actor):
         missle_mask: Mask,
         laser_hit_sfx: Sound,
         explosion_sfx: Sound,
+        missile_sfx: Sound,
     ):
         super().__init__(pos, hp, speed, ship_img, ship_mask, offset)
         self.cooldown_threshold = BASE_CANNON_COOLDOWN
@@ -49,7 +50,7 @@ class Player(Actor):
         self.missiles_fired = SpriteGroup()
         self.missile_cooldown_threshold = BASE_CANNON_COOLDOWN
         self.missile_cooldown_counter = 0
-        # TODO missile sfx
+        self.missile_sfx = missile_sfx
         self.laser_sfx = laser_sfx
         self.laser_hit_sfx = laser_hit_sfx
         self.explosion_sfx = explosion_sfx
@@ -125,6 +126,7 @@ class Player(Actor):
                 lock,
                 90.0,
             )
+            self.missile_sfx.play()
             self.missiles_fired.add(missile)
             self.missile_count -= 1
             self.missile_cooldown_counter = 1

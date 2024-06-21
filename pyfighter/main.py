@@ -213,6 +213,7 @@ def main() -> None:
     laser_sfx = pygame.mixer.Sound(SFX_PATHS["laser"])
     explosion_sfx = pygame.mixer.Sound(SFX_PATHS["explosion"])
     laser_hit_sfx = pygame.mixer.Sound(SFX_PATHS["laserHit"])
+    missile_sfx = pygame.mixer.Sound(SFX_PATHS["missile_launch"])
     pygame.mixer.music.load(SFX_PATHS["music"])
     pygame.font.init()
     pygame.mixer.music.play(-1)  # -1 will ensure the song keeps looping
@@ -242,6 +243,7 @@ def main() -> None:
         BLUE_LASER_MASK,
         laser_hit_sfx,
         explosion_sfx,
+        missile_sfx,
     )
     hud = HUD()
     asteroids = pygame.sprite.Group()
@@ -334,6 +336,7 @@ def main() -> None:
                 IMG_OFFSETS["enemy_boat"],
                 RED_MISSILE,
                 RED_MISSILE_MASK,
+                missile_sfx,
             )
 
         if not right_enemy_boat and random.random() < difficulty:
@@ -347,6 +350,7 @@ def main() -> None:
                 IMG_OFFSETS["enemy_boat"],
                 RED_MISSILE,
                 RED_MISSILE_MASK,
+                missile_sfx,
             )
 
         if fighter:

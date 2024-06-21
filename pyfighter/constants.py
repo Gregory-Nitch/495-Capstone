@@ -68,6 +68,7 @@ SFX_PATHS = {
     "laserHit": "./pyfighter/assets/zaid_sfx/Hit_4.wav",
     "music": "./pyfighter/assets/zaid_sfx/music.mp3",
     "powerup_pickup": "./pyfighter/assets/zaid_sfx/powerup.mp3",
+    "missile_launch": "./pyfighter/assets/zaid_sfx/missile_launch_sfx.mp3",
 }
 
 # Used for random selection
