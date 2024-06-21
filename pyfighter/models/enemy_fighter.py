@@ -31,7 +31,6 @@ class EnemyFighter(Actor):
         self.laser_img = laser_img
         self.laser_mask = laser_mask
         self.laser_sfx = laser_sfx
-        self.laser_offset = IMG_OFFSETS["blueLaser"]
         self.cooldown_threshold = BASE_CANNON_COOLDOWN
 
     def has_target(self, player: Player, screen: Surface) -> bool:
@@ -59,7 +58,7 @@ class EnemyFighter(Actor):
                 BASE_LASER_SPEED,
                 self.laser_img,
                 self.laser_mask,
-                self.laser_offset,
+                IMG_OFFSETS["blueLaser"],  # Same offset as the blue img
             )
             self.laser_sfx.play()
             # Setting to 1 starts timer (see cooldown_cannon())

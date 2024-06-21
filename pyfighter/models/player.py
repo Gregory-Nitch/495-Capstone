@@ -44,7 +44,6 @@ class Player(Actor):
         self.laser_img = laser_img
         self.lasers_fired = SpriteGroup()
         self.laser_mask = laser_mask
-        self.laser_offset = IMG_OFFSETS["blueLaser"]
         self.missile_img = missle_img
         self.missile_mask = missle_mask
         self.missiles_fired = SpriteGroup()
@@ -73,7 +72,7 @@ class Player(Actor):
                 BASE_LASER_SPEED,
                 self.laser_img,
                 self.laser_mask,
-                self.laser_offset,
+                IMG_OFFSETS["blueLaser"],
             )
             self.lasers_fired.add(laser)
             self.laser_sfx.play()
