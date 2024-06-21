@@ -189,8 +189,6 @@ def proccess_obj_for_powerup(obj: Actor, player: Player) -> PowerUp:
     """Creates PowerUp class instances with passed object references."""
 
     spawn_loc = obj.pos
-    spawn_loc.x -= obj.offset["x"] / 2
-    spawn_loc.y -= obj.offset["y"] / 2
     powerup_key = random.choice(POWERUP_LIST)
     powerup_img = POWERUP_IMGS[powerup_key]
     powerup_mask = POWERUP_MASKS[powerup_key]

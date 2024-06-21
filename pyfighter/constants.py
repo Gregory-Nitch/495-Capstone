@@ -16,16 +16,16 @@ BASE_LASER_DMG = 1
 
 # Offset = img width / 2 and img height / 2
 # Blue laser y offset is 0 so head of laser collision = hit
-IMG_OFFSETS = {  # TODO revisit asteroids (no longer rotating imgs)
+IMG_OFFSETS = {
     "player": {"x": 49, "y": 37},
-    "meteorB1": {"x": 91, "y": 91},
-    "meteorB2": {"x": 109, "y": 109},
-    "meteorB3": {"x": 85, "y": 85},
-    "meteorB4": {"x": 97, "y": 97},
-    "meteorG1": {"x": 91, "y": 91},
-    "meteorG2": {"x": 109, "y": 109},
-    "meteorG3": {"x": 85, "y": 85},
-    "meteorG4": {"x": 97, "y": 97},
+    "meteorB1": {"x": 50, "y": 42},
+    "meteorB2": {"x": 60, "y": 49},
+    "meteorB3": {"x": 44, "y": 41},
+    "meteorB4": {"x": 49, "y": 48},
+    "meteorG1": {"x": 50, "y": 42},
+    "meteorG2": {"x": 60, "y": 49},
+    "meteorG3": {"x": 44, "y": 41},
+    "meteorG4": {"x": 49, "y": 48},
     "blueLaser": {"x": 3, "y": 0},
     "blueMissile": {"x": 10, "y": 0},
     "red_missile": {"x": 10, "y": 0},
