@@ -39,18 +39,16 @@ class Player(Actor):
         self.cooldown_threshold = BASE_CANNON_COOLDOWN
         self.cooldown_counter = 0
         self.laser_dmg = BASE_LASER_DMG
-        self.missile_count = 1
+        self.missile_count = 2
         self.score = 0
         self.laser_img = laser_img
         self.lasers_fired = SpriteGroup()
         self.laser_mask = laser_mask
-        self.laser_offset = IMG_OFFSETS["blueLaser"]
         self.missile_img = missle_img
         self.missile_mask = missle_mask
         self.missiles_fired = SpriteGroup()
         self.missile_cooldown_threshold = BASE_CANNON_COOLDOWN
         self.missile_cooldown_counter = 0
-        # TODO missile offset
         # TODO missile sfx
         self.laser_sfx = laser_sfx
         self.laser_hit_sfx = laser_hit_sfx
@@ -74,7 +72,7 @@ class Player(Actor):
                 BASE_LASER_SPEED,
                 self.laser_img,
                 self.laser_mask,
-                self.laser_offset,
+                IMG_OFFSETS["blueLaser"],
             )
             self.lasers_fired.add(laser)
             self.laser_sfx.play()
@@ -88,7 +86,7 @@ class Player(Actor):
         objs_to_kill = []
 
         for obj in objs:
-            if Actor.resolve_collision(laser, obj):
+            if obj is not None and Actor.resolve_collision(laser, obj):
                 obj.hp -= 1
                 self.laser_hit_sfx.play()
                 if obj.hp <= 0:
@@ -138,7 +136,7 @@ class Player(Actor):
         objs_to_kill = []
 
         for obj in objs:
-            if Actor.resolve_collision(missile, obj):
+            if obj is not None and Actor.resolve_collision(missile, obj):
                 self.explosion_sfx.play()
                 obj.hp -= 3
                 if obj.hp <= 0:

@@ -10,27 +10,30 @@ BASE_SPEED = 100  # Used for asteroids and enemies
 BASE_LASER_SPEED = 1000
 PLAYER_BASE_SPEED = 300
 BASE_CANNON_COOLDOWN = 40
+BOAT_MISSILE_COOLDOWN = 200
 PLAYER_BASE_HULL = 3
 BASE_LASER_DMG = 1
 
 # Offset = img width / 2 and img height / 2
 # Blue laser y offset is 0 so head of laser collision = hit
-IMG_OFFSETS = {  # TODO revisit asteroids (no longer rotating imgs)
+IMG_OFFSETS = {
     "player": {"x": 49, "y": 37},
-    "meteorB1": {"x": 91, "y": 91},
-    "meteorB2": {"x": 109, "y": 109},
-    "meteorB3": {"x": 85, "y": 85},
-    "meteorB4": {"x": 97, "y": 97},
-    "meteorG1": {"x": 91, "y": 91},
-    "meteorG2": {"x": 109, "y": 109},
-    "meteorG3": {"x": 85, "y": 85},
-    "meteorG4": {"x": 97, "y": 97},
+    "meteorB1": {"x": 50, "y": 42},
+    "meteorB2": {"x": 60, "y": 49},
+    "meteorB3": {"x": 44, "y": 41},
+    "meteorB4": {"x": 49, "y": 48},
+    "meteorG1": {"x": 50, "y": 42},
+    "meteorG2": {"x": 60, "y": 49},
+    "meteorG3": {"x": 44, "y": 41},
+    "meteorG4": {"x": 49, "y": 48},
     "blueLaser": {"x": 3, "y": 0},
     "blueMissile": {"x": 10, "y": 0},
+    "red_missile": {"x": 10, "y": 0},
     "fire_rate": {"x": 17, "y": 16},
     "speed": {"x": 17, "y": 16},
     "missiles": {"x": 17, "y": 16},
     "enemy_fighter": {"x": 46, "y": 42},
+    "enemy_boat": {"x": 41, "y": 42},
 }
 
 # Note: use convert alpha for images with transparency (not done here)
@@ -51,7 +54,9 @@ IMG_PATHS = {
     "speed": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Power-ups/powerupGreen_star.png",
     "missiles": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Power-ups/powerupRed_star.png",
     "enemy_fighter": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Enemies/enemyBlack1.png",
+    "enemy_boat": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Enemies/enemyBlack4.png",
     "red_laser": "./pyfighter/assets/kenney_space-shooter-redux/PNG/Lasers/laserRed07.png",
+    "red_missile": "./pyfighter/assets/kenney_space-shooter-extension/PNG/Sprites/Missiles/spaceMissiles_040.png",
     "start_button": "./pyfighter/assets/buttons/start_button.png",
     "exit_button": "./pyfighter/assets/buttons/exit_button.png",
     "continue_button": "./pyfighter/assets/buttons/continue_button.png",
