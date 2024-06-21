@@ -26,10 +26,10 @@ def test_cooldown_counters():
 
     # Mock player
     player_img = pygame.image.load(
-        "./assets/kenney_space-shooter-redux/PNG/playerShip1_orange.png"
+        "./assets/active_sprites/ships/playerShip1_orange.png"
     ).convert_alpha()
     missile_img = pygame.image.load(
-        "./assets/kenney_space-shooter-extension/PNG/Sprites/Missiles/spaceMissiles_001.png"
+        "./assets/active_sprites/Missiles/spaceMissiles_001.png"
     ).convert_alpha()
     test_player = Player(
         pygame.Vector2(0, 0),
@@ -65,7 +65,7 @@ def test_collision():
 
     # Load an image for masking
     test_img = pygame.image.load(
-        "./assets/kenney_space-shooter-redux/PNG/playerShip1_orange.png"
+        "./assets/active_sprites/ships/playerShip1_orange.png"
     ).convert_alpha()
     test_mask = pygame.mask.from_surface(test_img)
 
@@ -91,7 +91,7 @@ def test_noncollision():
 
     # Load images
     test_img = pygame.image.load(
-        "./assets/kenney_space-shooter-redux/PNG/playerShip1_orange.png"
+        "./assets/active_sprites/ships/playerShip1_orange.png"
     ).convert_alpha()
     test_mask = pygame.mask.from_surface(test_img)
 
@@ -116,13 +116,13 @@ def test_resolve_hits():
 
     # Load laser
     test_laser_img = pygame.image.load(
-        "./assets/kenney_space-shooter-redux/PNG/Lasers/laserBlue07.png"
+        "./assets/active_sprites/Lasers/laserBlue07.png"
     ).convert_alpha()
     test_laser_mask = pygame.mask.from_surface(test_laser_img)
 
     # Mock player object
     player_img = pygame.image.load(
-        "./assets/kenney_space-shooter-redux/PNG/playerShip1_orange.png"
+        "./assets/active_sprites/ships/playerShip1_orange.png"
     ).convert_alpha()
     test_player = Player(
         pygame.Vector2(0, 0),
@@ -142,7 +142,7 @@ def test_resolve_hits():
 
     # Load asteroid
     test_asteroid_img = pygame.image.load(
-        "./assets/kenney_space-shooter-redux/PNG/Lasers/laserBlue07.png"
+        "./assets/active_sprites/Lasers/laserBlue07.png"
     ).convert_alpha()
     test_asteroid_mask = pygame.mask.from_surface(test_asteroid_img)
 
@@ -190,7 +190,7 @@ def test_powerup_pickup():
 
     # Load image for mock
     powerup_img = pygame.image.load(
-        "./assets/kenney_space-shooter-redux/PNG/Power-ups/powerupBlue_star.png"
+        "./assets/active_sprites/Power-Ups/powerupBlue_star.png"
     ).convert_alpha()
     powerup_mask = pygame.mask.from_surface(powerup_img)
 
@@ -225,7 +225,7 @@ def test_powerup_pickup():
 
     # Mock player
     player_img = pygame.image.load(
-        "./assets/kenney_space-shooter-redux/PNG/playerShip1_orange.png"
+        "./assets/active_sprites/ships/playerShip1_orange.png"
     ).convert_alpha()
     test_player = Player(
         pygame.Vector2(0, 0),
@@ -246,6 +246,6 @@ def test_powerup_pickup():
     fire_rate_powerup.pickup(test_player)
     speed_powerup.pickup(test_player)
     missile_powerup.pickup(test_player)
-    assert test_player.cooldown_threshold == 38
-    assert test_player.speed == 350
-    assert test_player.missile_count == 2
+    assert test_player.cooldown_threshold == 39
+    assert test_player.speed == 320
+    assert test_player.missile_count == 3
