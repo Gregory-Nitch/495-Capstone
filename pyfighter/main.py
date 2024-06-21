@@ -66,6 +66,9 @@ EXIT_IMG = pygame.transform.scale(
 CONTINUE_IMG = pygame.transform.scale(
     pygame.image.load(IMG_PATHS["continue_button"]).convert_alpha(), (384, 128)
 )
+RESTART_IMG = pygame.transform.scale(
+    pygame.image.load(IMG_PATHS["restart_button"]).convert_alpha(), (384, 128)
+)
 
 ASTEROID_IMG_MAP = {}
 for ast in ASTEROID_LIST:
@@ -83,6 +86,7 @@ POWERUP_MASKS = {
 START_BUTTON = Button(SCREEN.get_width() / 2 - 175, 350, START_IMG, 1)
 EXIT_BUTTON = Button(SCREEN.get_width() / 2 - 175, 600, EXIT_IMG, 1)
 CONTINUE_BUTTON = Button(SCREEN.get_width() / 2 - 175, 350, CONTINUE_IMG, 1)
+RESTART_BUTTON = Button(SCREEN.get_width() / 2 - 175, 350, RESTART_IMG, 1)
 
 
 def main_menu() -> None:
@@ -179,7 +183,7 @@ def gameover_screen(lost_font: pygame.font.SysFont, player: Player) -> bool:
         pygame.display.update()
         # Until quit or player starts the game
         for event in pygame.event.get():
-            if event.type == pygame.QUIT or event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type in [pygame.QUIT, pygame.MOUSEBUTTONDOWN]:
                 not_ready = False
 
     return running

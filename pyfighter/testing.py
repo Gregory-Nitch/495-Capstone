@@ -45,6 +45,7 @@ def test_cooldown_counters():
         None,
         None,
         None,
+        Sound("./assets/zaid_sfx/missile_launch_sfx.mp3"),
     )
 
     # Test counters
@@ -138,6 +139,7 @@ def test_resolve_hits():
         None,
         Sound("./assets/zaid_sfx/Hit_4.wav"),
         None,
+        Sound("./assets/zaid_sfx/missile_launch_sfx.mp3"),
     )
 
     # Load asteroid
@@ -241,6 +243,7 @@ def test_powerup_pickup():
         None,
         None,
         None,
+        Sound("./assets/zaid_sfx/missile_launch_sfx.mp3"),
     )
 
     fire_rate_powerup.pickup(test_player)

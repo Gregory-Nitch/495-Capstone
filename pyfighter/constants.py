@@ -60,6 +60,7 @@ IMG_PATHS = {
     "start_button": "./pyfighter/assets/active_sprites/buttons/start_button.png",
     "exit_button": "./pyfighter/assets/active_sprites/buttons/exit_button.png",
     "continue_button": "./pyfighter/assets/active_sprites/buttons/continue_button.png",
+    "restart_button": "./pyfighter/assets/active_sprites/buttons/restart_button.png",
 }
 
 SFX_PATHS = {
