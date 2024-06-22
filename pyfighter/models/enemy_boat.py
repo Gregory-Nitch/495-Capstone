@@ -2,6 +2,7 @@
 their left and right."""
 
 from pygame import Mask, Vector2
+from pygame.mixer import Sound
 from models.actor import Actor
 from models.player import Player
 from models.missile import Missile
@@ -23,6 +24,7 @@ class EnemyBoat(Actor):
         offset: dict,
         missile_img,
         missile_mask: Mask,
+        missile_sfx: Sound,
     ):
         super().__init__(pos, hp, speed, img, img_mask, offset)
         self.tracking_module = AITrackingModule(self, logic_type)
@@ -30,6 +32,7 @@ class EnemyBoat(Actor):
         self.missile_mask = missile_mask
         self.missile_cooldown_threshold = BOAT_MISSILE_COOLDOWN
         self.missile_cooldown_counter = 0
+        self.missile_sfx = missile_sfx
 
     def is_on_screen(self, screen_width, screen_height) -> bool:
         """Checks if the missile boat is on the screen, used to prevent it from
@@ -67,6 +70,7 @@ class EnemyBoat(Actor):
                 player,
                 90.0,
             )
+            self.missile_sfx.play()
             self.missile_cooldown_counter = 1
             return missile
         else:
