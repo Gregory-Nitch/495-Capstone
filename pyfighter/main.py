@@ -254,7 +254,18 @@ def proccess_obj_for_powerup(obj: Actor, player: Player) -> PowerUp:
     )
     return new_powerup
 
-def player_input(player: Player, keys: pygame.key, fighter: EnemyFighter, left_enemy_boat: EnemyBoat, right_enemy_boat: EnemyBoat, delta_time: float ) -> bool:
+
+def player_input(
+    player: Player,
+    keys: pygame.key,
+    fighter: EnemyFighter,
+    left_enemy_boat: EnemyBoat,
+    right_enemy_boat: EnemyBoat,
+    delta_time: float,
+) -> bool:
+    """Captures player input during a frame, used to carry out player
+    comands."""
+
     if keys[pygame.K_UP] and player.pos.y > HUD_HEIGHT + player.offset["y"]:
         player.pos.y -= player.speed * delta_time
     if (
@@ -270,26 +281,44 @@ def player_input(player: Player, keys: pygame.key, fighter: EnemyFighter, left_e
         player.shoot()
     if keys[pygame.K_LALT]:
         player.fire_missle([fighter, left_enemy_boat, right_enemy_boat])
-    return True
 
-def spawn_asteroids(asteroids: list[pygame.sprite.Group], difficulty: float, player: Player) -> bool:
+
+def spawn_asteroids(
+    asteroids: list[pygame.sprite.Group], difficulty: float, player: Player
+) -> bool:
+    """Spawns asteroids at a random rate depending on player score and
+    difficulty."""
+
     if random.random() < difficulty:
-            a_pos = pygame.Vector2(random.randrange(50, SCREEN_WIDTH), 0)
-            a_key = random.choice(ASTEROID_LIST)
-            new_asteroid = Asteroid(
-                a_pos,
-                3,
-                BASE_SPEED + player.score * 0.75,
-                ASTEROID_IMG_MAP[a_key],
-                IMG_OFFSETS[a_key],
-            )
-            asteroids.add(new_asteroid)
-    return True
+        a_pos = pygame.Vector2(random.randrange(50, SCREEN_WIDTH), 0)
+        a_key = random.choice(ASTEROID_LIST)
+        new_asteroid = Asteroid(
+            a_pos,
+            3,
+            BASE_SPEED + player.score * 0.75,
+            ASTEROID_IMG_MAP[a_key],
+            IMG_OFFSETS[a_key],
+        )
+        asteroids.add(new_asteroid)
 
-def asteroid_hp(asteroids: list[pygame.sprite.Group], incoming: object, enemy_fire: list[pygame.sprite.Group], objs_to_kill: list[object], explosion_sfx: pygame.mixer.Sound, laser_hit_sfx: pygame.mixer.Sound, type: int)->bool:
+
+def asteroid_hp(
+    asteroids: list[pygame.sprite.Group],
+    incoming: object,
+    enemy_fire: list[pygame.sprite.Group],
+    objs_to_kill: list[object],
+    explosion_sfx: pygame.mixer.Sound,
+    laser_hit_sfx: pygame.mixer.Sound,
+    projectile_type: int,
+) -> bool:
+    """Resolves asteroid health actions depending on incoming type of
+    projectile."""
+
     for a in asteroids:
-        if Actor.resolve_collision(a, incoming): #determine what projectile is coming, reduce health accordingly
-            if type==1:
+        if Actor.resolve_collision(
+            a, incoming
+        ):  # determine what projectile is coming, reduce health accordingly
+            if projectile_type == 1:
                 a.hp -= 3
             else:
                 a.hp -= 1
@@ -299,33 +328,60 @@ def asteroid_hp(asteroids: list[pygame.sprite.Group], incoming: object, enemy_fi
                 objs_to_kill.append(a)
                 explosion_sfx.play()
             enemy_fire.remove(incoming)
-    return True
 
-def kill_obj(objs_to_kill: list[object], player: Player, powerups: list[pygame.sprite.Group])->bool:
+
+def process_killed_objects(
+    objs_to_kill: list[object], player: Player, powerups: list[pygame.sprite.Group]
+) -> bool:
+    """Randomly activates a power up processing action for each object that
+    needs to be killed."""
+
     for obj in objs_to_kill:
-        if random.random() < 0.3:  # Randomize drop chance 
+        if random.random() < 0.3:  # Randomize drop chance
             new_powerup = proccess_obj_for_powerup(obj, player)
             powerups.add(new_powerup)
-    return True
 
-def handle_projectile(delta_time: int, powerups: list[pygame.sprite.Group], objs_to_kill: list[object], enemy_fire: list[pygame.sprite.Group], player: Player, asteroids: list[pygame.sprite.Group],  explosion_sfx: pygame.mixer.Sound, laser_hit_sfx: pygame.mixer.Sound, type: int, lost_font: pygame.font)-> bool:
+
+def handle_projectile(
+    delta_time: int,
+    powerups: list[pygame.sprite.Group],
+    objs_to_kill: list[object],
+    enemy_fire: list[pygame.sprite.Group],
+    player: Player,
+    asteroids: list[pygame.sprite.Group],
+    explosion_sfx: pygame.mixer.Sound,
+    laser_hit_sfx: pygame.mixer.Sound,
+    projectile_type: int,
+    lost_font: pygame.font,
+) -> bool:
+    """Reloves hits against the player and asteroids from enemy projectiles
+    based on type."""
+
     reset = False
     for fire in enemy_fire:
         if fire.pos.y < 0:
             enemy_fire.remove(fire)
         if Actor.resolve_collision(player, fire):
             player.hp -= 1
-            if type==0:
+            if projectile_type == 0:
                 laser_hit_sfx.play()
             else:
                 explosion_sfx.play()
-            if player.hp <=0:
-                #exp sfx
+            if player.hp <= 0:
+                # exp sfx
                 reset = gameover_screen(lost_font, player)
             enemy_fire.remove(fire)
-        asteroid_hp(asteroids, fire, enemy_fire, objs_to_kill, explosion_sfx, laser_hit_sfx, type)
-        kill_obj(objs_to_kill, player, powerups)
-        if type==1:
+        asteroid_hp(
+            asteroids,
+            fire,
+            enemy_fire,
+            objs_to_kill,
+            explosion_sfx,
+            laser_hit_sfx,
+            projectile_type,
+        )
+        process_killed_objects(objs_to_kill, player, powerups)
+        if projectile_type == 1:
             if fire.target:
                 fire.seek(delta_time)
             else:
@@ -399,7 +455,7 @@ def main() -> None:
         # Draw to screen here back to front
         SCREEN.blit(BG_IMG, (0, 60))  # Background first, 60px down for hud
 
-        #group assets
+        # group assets
         sprite_groups = [asteroids, enemy_lasers, enemy_missiles]
         enemies = [fighter, left_enemy_boat, right_enemy_boat]
         # Actors drawn here
@@ -488,7 +544,9 @@ def main() -> None:
 
         # Check player inputs here
         keys = pygame.key.get_pressed()
-        player_input(player, keys, fighter, left_enemy_boat, right_enemy_boat, delta_time)
+        player_input(
+            player, keys, fighter, left_enemy_boat, right_enemy_boat, delta_time
+        )
         # ESC key = quit
         if keys[pygame.K_ESCAPE]:
             start_time += pause_menu()
@@ -552,19 +610,41 @@ def main() -> None:
 
         objs_to_kill = []
 
-        #handle lasers
-        reset = handle_projectile(delta_time, powerups, objs_to_kill, enemy_lasers, player, asteroids, explosion_sfx, laser_hit_sfx, 0, lost_font)
+        # handle lasers
+        reset = handle_projectile(
+            delta_time,
+            powerups,
+            objs_to_kill,
+            enemy_lasers,
+            player,
+            asteroids,
+            explosion_sfx,
+            laser_hit_sfx,
+            0,
+            lost_font,
+        )
 
-        #check for restart
+        # check for restart
         if reset:
             start_time = reset_game_state(player, sprite_groups, enemies)
         # Need to empty objs to kill for next iteration
         objs_to_kill.clear()
 
-        #handle missiles
-        reset = handle_projectile(delta_time, powerups, objs_to_kill, enemy_missiles, player, asteroids, explosion_sfx, laser_hit_sfx, 1, lost_font)
+        # handle missiles
+        reset = handle_projectile(
+            delta_time,
+            powerups,
+            objs_to_kill,
+            enemy_missiles,
+            player,
+            asteroids,
+            explosion_sfx,
+            laser_hit_sfx,
+            1,
+            lost_font,
+        )
 
-        #check for restart
+        # check for restart
         if reset:
             start_time = reset_game_state(player, sprite_groups, enemies)
         # Need to empty objs to kill for next iteration
@@ -578,7 +658,7 @@ def main() -> None:
             objs_to_kill += player.resolve_hits(
                 laser, [fighter, left_enemy_boat, right_enemy_boat]
             )
-            kill_obj(objs_to_kill, player, powerups)
+            process_killed_objects(objs_to_kill, player, powerups)
             laser.pos.y -= laser.speed * delta_time
 
         # Need to empty objs to kill for next iteration
@@ -591,7 +671,7 @@ def main() -> None:
             objs_to_kill += player.resolve_missiles(
                 missile, [fighter, left_enemy_boat, right_enemy_boat]
             )
-            kill_obj(objs_to_kill, player, powerups)
+            process_killed_objects(objs_to_kill, player, powerups)
             if missile.target:
                 missile.seek(delta_time)
             else:
