@@ -14,6 +14,8 @@ from pygame.mixer import Sound
 from models.player import Player
 from models.actor import Actor
 from models.powerup import PowerUp
+from models.enemy_fighter import EnemyFighter
+from models.enemy_boat import EnemyBoat
 
 
 def test_cooldown_counters():
@@ -252,3 +254,95 @@ def test_powerup_pickup():
     assert test_player.cooldown_threshold == 39
     assert test_player.speed == 320
     assert test_player.missile_count == 3
+
+def test_fighter_cooldown_counters():
+    """Tests if the enemy's cannon cooldown counter is properly set after
+    firing their cannon."""
+
+    # Setup pygame state
+    pygame.init()
+    pygame.display.set_mode((0, 0))
+
+    # Mock fighter
+    fighter_img = pygame.image.load(
+        "./assets/active_sprites/Enemies/enemyBlack1.png"
+    ).convert_alpha()
+    laser_img = pygame.image.load(
+        "./assets/active_sprites/Lasers/laserRed07.png"
+    ).convert_alpha()
+    test_fighter = EnemyFighter(
+        pygame.Vector2(0, 0),
+        0,
+        0,
+        fighter_img,
+        None,
+        {"x": 0, "y": 0},
+        laser_img,
+        None,
+        Sound("./assets/zaid_sfx/laser1.wav"),
+    )
+
+    # Test counters
+    assert test_fighter.cooldown_counter == 0
+    laser = test_fighter.shoot()
+    assert test_fighter.cooldown_counter == 1
+    assert laser is not None
+    laser = test_fighter.shoot()
+    assert laser is None
+    
+def test_boat_cooldown_counters():
+    """Tests if the enemy's cannon cooldown counter is properly set after
+    firing their cannon."""
+
+    # Setup pygame state
+    pygame.init()
+    pygame.display.set_mode((0, 0))
+
+    # Mock boat
+    boat_img = pygame.image.load(
+        "./assets/active_sprites/Enemies/enemyBlack4.png"
+    ).convert_alpha()
+    missle_img = pygame.image.load(
+        "./assets/active_sprites/Missiles/spaceMissiles_040.png"
+    ).convert_alpha()
+    test_boat = EnemyBoat(
+        pygame.Vector2(0, 0),
+        0,
+        0,
+        boat_img,
+        None,
+        "left_boat",
+        {"x": 0, "y": 0},
+        missle_img,
+        None,
+        Sound("./assets/zaid_sfx/missile_launch_sfx.mp3"),
+    )
+    
+    # Mock player
+    player_img = pygame.image.load(
+        "./assets/active_sprites/ships/playerShip1_orange.png"
+    ).convert_alpha()
+    test_player = Player(
+        pygame.Vector2(0, 0),
+        0,
+        0,
+        player_img,
+        None,
+        {"x": 0, "y": 0},
+        None,
+        None,
+        Sound("./assets/zaid_sfx/laser1.wav"),
+        None,
+        None,
+        None,
+        None,
+        Sound("./assets/zaid_sfx/missile_launch_sfx.mp3"),
+    )
+
+    # Test counters
+    assert test_boat.missile_cooldown_counter == 0
+    missile = test_boat.launch_missile(test_player)
+    assert test_boat.missile_cooldown_counter == 1
+    assert missile is not None
+    missile = test_boat.launch_missile(test_player)
+    assert missile is None    
