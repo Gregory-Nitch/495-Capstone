@@ -353,11 +353,13 @@ def handle_projectile(
     laser_hit_sfx: pygame.mixer.Sound,
     projectile_type: int,
     lost_font: pygame.font,
-) -> bool:
+) -> tuple[bool, bool]:
     """Reloves hits against the player and asteroids from enemy projectiles
-    based on type."""
+    based on type. Also calls gameover state logic and returns two booleans
+    (reset, running)."""
 
     reset = False
+    running = True
     for fire in enemy_fire:
         if fire.pos.y < 0:
             enemy_fire.remove(fire)
@@ -368,8 +370,10 @@ def handle_projectile(
             else:
                 explosion_sfx.play()
             if player.hp <= 0:
-                # exp sfx
+                explosion_sfx.play()
                 reset = gameover_screen(lost_font, player)
+                if not reset:
+                    running = False
             enemy_fire.remove(fire)
         asteroid_hp(
             asteroids,
@@ -388,7 +392,7 @@ def handle_projectile(
                 fire.pos.y -= fire.speed * delta_time
         else:
             fire.pos.y -= fire.speed * delta_time
-    return reset
+    return reset, running
 
 
 def main() -> None:
@@ -572,6 +576,8 @@ def main() -> None:
                     a.speed + right_enemy_boat.speed
                 ) * delta_time
             a.pos.y += a.speed * delta_time
+        if not running:  # Prevents continuation of frame after a gameover state
+            continue
 
         if fighter:
             fighter.tracking_module.seek_target(
@@ -611,7 +617,7 @@ def main() -> None:
         objs_to_kill = []
 
         # handle lasers
-        reset = handle_projectile(
+        reset, running = handle_projectile(
             delta_time,
             powerups,
             objs_to_kill,
@@ -623,6 +629,8 @@ def main() -> None:
             0,
             lost_font,
         )
+        if not running:  # Prevents continuation of frame after a gameover state
+            continue
 
         # check for restart
         if reset:
@@ -631,7 +639,7 @@ def main() -> None:
         objs_to_kill.clear()
 
         # handle missiles
-        reset = handle_projectile(
+        reset, running = handle_projectile(
             delta_time,
             powerups,
             objs_to_kill,
@@ -643,6 +651,8 @@ def main() -> None:
             1,
             lost_font,
         )
+        if not running:  # Prevents continuation of frame after a gameover state
+            continue
 
         # check for restart
         if reset:
