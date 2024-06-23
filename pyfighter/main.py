@@ -22,6 +22,7 @@ from constants import (
     PLAYER_BUFFER,
     PLAYER_BASE_SPEED,
     PLAYER_BASE_HULL,
+    BASE_CANNON_COOLDOWN,
     BASE_SPEED,
     ASTEROID_LIST,
     SFX_PATHS,
@@ -168,25 +169,71 @@ def pause_menu() -> float:
 
 def gameover_screen(lost_font: pygame.font.SysFont, player: Player) -> bool:
     """Displays the game over screen to the player and returns a bool to end
-    the main game loop."""
+    the main game loop, or restart it. A True return value means that the game
+    state needs to be reset."""
 
     pygame.time.wait(500)  # Wait on loss before moving to game over
-    running = False
+    request_reset = False
     SCREEN.blit(BG_IMG, (0, 0))
     lost_label = lost_font.render(
         "Game Over!! Your score was: " + str(player.score), 1, (255, 255, 255)
     )
-    SCREEN.blit(lost_label, (SCREEN_WIDTH / 2 - lost_label.get_width() / 2, 350))
-    not_ready = True
-    while not_ready:
+    SCREEN.blit(lost_label, (SCREEN_WIDTH / 2 - lost_label.get_width() / 2, 250))
+    awaiting_reset = True
+    while awaiting_reset:
         # Display above font
         pygame.display.update()
-        # Until quit or player starts the game
-        for event in pygame.event.get():
-            if event.type in [pygame.QUIT, pygame.MOUSEBUTTONDOWN]:
-                not_ready = False
 
-    return running
+        # Until quit or player starts a new game
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+        if RESTART_BUTTON.draw(SCREEN):
+            request_reset = True
+            awaiting_reset = False
+
+        if EXIT_BUTTON.draw(SCREEN):
+            request_reset = False
+            awaiting_reset = False
+
+    return request_reset
+
+
+def reset_game_state(
+    player: Player, sprite_groups: list[pygame.sprite.Group], enemies: list[Actor]
+) -> float:
+    """Reverts the game state back to its initial settings, this includes
+    the player state back to default values, and emptying of all sprite
+    groups. Returns start time for the new game."""
+
+    # Reset player state
+    player.score = 0
+    player.hp = PLAYER_BASE_HULL
+    player.speed = PLAYER_BASE_SPEED
+    player.pos = pygame.Vector2((SCREEN.get_width() / 2), (SCREEN.get_height() / 2))
+    player.missile_count = 2
+    player.cooldown_counter = 0
+    player.cooldown_threshold = BASE_CANNON_COOLDOWN
+    player.missile_cooldown_counter = 0
+    player.missile_cooldown_threshold = BASE_CANNON_COOLDOWN
+    player.lasers_fired.empty()
+    player.missiles_fired.empty()
+    player.glow_effect_active = False
+    player.glow_effect_end_time = 0
+
+    # Empty all sprite groups
+    for group in sprite_groups:
+        group.empty()
+
+    # Remove enemies
+    for enemy in enemies:
+        if enemy:  # Protects against None objects
+            enemy.hp = 0  # Needed to set hp to 0 for proper killing of object
+            # This results in the killing and nulling of the object in main()
+
+    return time.time()  # Return reset time
 
 
 def proccess_obj_for_powerup(obj: Actor, player: Player) -> PowerUp:
@@ -393,6 +440,12 @@ def main() -> None:
                 asteroids.remove(a)
             elif Actor.resolve_collision(player, a):
                 running = gameover_screen(lost_font, player)
+                if running:
+                    start_time = reset_game_state(
+                        player,
+                        [asteroids, enemy_lasers, enemy_missiles],
+                        [fighter, left_enemy_boat, right_enemy_boat],
+                    )
             if fighter and Actor.resolve_collision(fighter, a):
                 fighter.pos.y += (a.speed + fighter.speed) * delta_time
             if left_enemy_boat and Actor.resolve_collision(left_enemy_boat, a):
@@ -449,6 +502,12 @@ def main() -> None:
                 if player.hp <= 0:
                     explosion_sfx.play()
                     running = gameover_screen(lost_font, player)
+                    if running:
+                        start_time = reset_game_state(
+                            player,
+                            [asteroids, enemy_lasers, enemy_missiles],
+                            [fighter, left_enemy_boat, right_enemy_boat],
+                        )
                 enemy_lasers.remove(laser)
             for a in asteroids:
                 if Actor.resolve_collision(a, laser):
@@ -477,6 +536,12 @@ def main() -> None:
                 explosion_sfx.play()
                 if player.hp <= 0:
                     running = gameover_screen(lost_font, player)
+                    if running:
+                        start_time = reset_game_state(
+                            player,
+                            [asteroids, enemy_lasers, enemy_missiles],
+                            [fighter, left_enemy_boat, right_enemy_boat],
+                        )
                 enemy_missiles.remove(missile)
             for a in asteroids:
                 if Actor.resolve_collision(a, missile):
