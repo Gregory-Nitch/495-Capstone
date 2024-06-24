@@ -89,3 +89,8 @@ POWERUP_LIST = [
     "speed",
     "missiles",
 ]
+
+ANI_PATHS = {
+    "fighter_death_frames": "./pyfighter/assets/active_sprites/enemies/enemy_deathani/enemy_death"
+,
+}

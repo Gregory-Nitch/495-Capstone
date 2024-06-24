@@ -24,6 +24,8 @@ class EnemyFighter(Actor):
         laser_img,
         laser_mask: Mask,
         laser_sfx: Sound,
+        death_animation_frames: list[Surface]  # Add this parameter
+
     ):
         super().__init__(pos, hp, speed, img, img_mask, offset)
         self.tracking_module = AITrackingModule(self, "fighter")
@@ -32,6 +34,11 @@ class EnemyFighter(Actor):
         self.laser_mask = laser_mask
         self.laser_sfx = laser_sfx
         self.cooldown_threshold = BASE_CANNON_COOLDOWN
+        self.death_animation_frames = death_animation_frames
+        self.is_dying = False
+        self.current_frame = 0
+        self.animation_counter = 0
+        self.dead = False
 
     def has_target(self, player: Player, screen: Surface) -> bool:
         """Checks if the enemy fighter is behind the player and on the
@@ -77,3 +84,18 @@ class EnemyFighter(Actor):
         # Else increase counter (gets closer to threshold)
         elif self.cooldown_counter > 0:
             self.cooldown_counter += 1
+            
+    def start_death_animation(self):
+        self.is_dying = True
+        self.current_frame = 0
+        self.animation_counter = 0
+        
+    def update_death_animation(self):
+        if self.is_dying:
+            if self.animation_counter % 5 == 0:  # Adjust the speed of the animation
+                self.current_frame += 1
+            if self.current_frame >= len(self.death_animation_frames):
+                self.dead = True  # Remove the enemy fighter after the animation is done
+            else:
+                self.img = self.death_animation_frames[self.current_frame]
+            self.animation_counter += 1
