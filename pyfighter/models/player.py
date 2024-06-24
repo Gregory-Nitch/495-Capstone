@@ -36,8 +36,7 @@ class Player(Actor):
         laser_hit_sfx: Sound,
         explosion_sfx: Sound,
         missile_sfx: Sound,
-        idle_animation_frames: list[Surface]
-
+        idle_animation_frames: list[Surface],
     ):
         super().__init__(pos, hp, speed, ship_img, ship_mask, offset)
         self.cooldown_threshold = BASE_CANNON_COOLDOWN
@@ -63,9 +62,8 @@ class Player(Actor):
 
         # Attributes for glow effect
         self.glow_effect_duration = 200  # Duration in milliseconds
-        self.glow_effect_active = False
         self.glow_effect_end_time = 0
-        self.original_image = self.img.copy()
+        self.original_images = {}
 
     def shoot(self):
         """Appends a new laser to the laser list if the player's cannon is not in cooldown."""
@@ -87,10 +85,27 @@ class Player(Actor):
             self.cooldown_counter = 1
 
     def update_idle_animation(self):
-        """Update the idle animation."""
+        """Update the idle animation for the player (engine effects)."""
+
         if self.animation_counter % 5 == 0:  # Adjust this value to change the speed
-            self.current_frame = (self.current_frame + 1) % len(self.idle_animation_frames)
+            self.current_frame = (self.current_frame + 1) % len(
+                self.idle_animation_frames
+            )
             self.img = self.idle_animation_frames[self.current_frame]
+
+        if pygame.time.get_ticks() < self.glow_effect_end_time:
+            # Before glow application add img to orginal img list
+            if not self.original_images.get(self.current_frame):
+                self.original_images[self.current_frame] = self.img.copy()
+
+            glow_color = pygame.Color("yellow")
+            self.img.fill(glow_color, special_flags=pygame.BLEND_ADD)
+        else:
+            # Restore images to before glow effect
+            for frame_idx, frame_img in self.original_images.items():
+                self.idle_animation_frames[frame_idx] = frame_img
+            self.original_images.clear()
+
         self.animation_counter += 1
 
     def resolve_hits(self, laser: Actor, objs: list) -> list:
@@ -164,20 +179,7 @@ class Player(Actor):
     def start_glow_effect(self):
         """Initiates a glow effect on the player."""
 
-        self.glow_effect_active = True
         self.glow_effect_end_time = pygame.time.get_ticks() + self.glow_effect_duration
-        glow_color = pygame.Color("yellow")
-        self.img.fill(glow_color, special_flags=pygame.BLEND_ADD)
-
-    def update(self):
-        """Updates the player state, including handling the glow effect."""
-
-        if (
-            self.glow_effect_active
-            and pygame.time.get_ticks() > self.glow_effect_end_time
-        ):
-            self.glow_effect_active = False
-            self.img = self.original_image.copy()
 
     def cooldown_missiles(self):
         """Ticks the cooldown for player missiles, should be callsed for

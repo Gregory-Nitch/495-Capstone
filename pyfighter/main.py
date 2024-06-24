@@ -102,9 +102,12 @@ BOAT_DEATH_ANIMATION_FRAMES = [
     for i in range(1, 13)
 ]
 PLAYER_IDLE_FRAMES = [
-    pygame.image.load(f"{ANI_PATHS['player_idle_frames']}{str(i).zfill(3)}.png").convert_alpha()
+    pygame.image.load(
+        f"{ANI_PATHS['player_idle_frames']}{str(i).zfill(3)}.png"
+    ).convert_alpha()
     for i in range(0, 20)
 ]
+
 
 def main_menu() -> None:
     """Prints the start screen before the game begins and waits until the
@@ -451,8 +454,7 @@ def main() -> None:
         laser_hit_sfx,
         explosion_sfx,
         missile_sfx,
-        PLAYER_IDLE_FRAMES
-
+        PLAYER_IDLE_FRAMES,
     )
     hud = HUD()
     asteroids = pygame.sprite.Group()
@@ -473,7 +475,6 @@ def main() -> None:
 
         # Update player
         player.update_idle_animation()
-        player.update()
 
         # Draw to screen here back to front
         SCREEN.blit(BG_IMG, (0, 60))  # Background first, 60px down for hud
@@ -513,7 +514,7 @@ def main() -> None:
         # Use of random produces a percent chance for an asteroid per frame
         spawn_asteroids(asteroids, difficulty, player)
 
-        difficulty = player.score * 0.000008
+        difficulty = player.score * 0.00008
         if not fighter and random.random() < difficulty:
             fighter = EnemyFighter(
                 pygame.Vector2(random.randrange(50, SCREEN_WIDTH), SCREEN_HEIGHT + 100),
@@ -528,7 +529,7 @@ def main() -> None:
                 FIGHTER_DEATH_ANIMATION_FRAMES,
             )
 
-        difficulty = player.score * 0.000002
+        difficulty = player.score * 0.00002
         if not left_enemy_boat and random.random() < difficulty:
             left_enemy_boat = EnemyBoat(
                 pygame.Vector2(-100, random.randrange(0, SCREEN_HEIGHT)),
