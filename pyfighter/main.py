@@ -27,7 +27,7 @@ from constants import (
     ASTEROID_LIST,
     SFX_PATHS,
     POWERUP_LIST,
-    ANI_PATHS
+    ANI_PATHS,
 )
 from models.hud import HUD
 from models.player import Player
@@ -89,6 +89,12 @@ START_BUTTON = Button(SCREEN.get_width() / 2 - 175, 350, START_IMG, 1)
 EXIT_BUTTON = Button(SCREEN.get_width() / 2 - 175, 600, EXIT_IMG, 1)
 CONTINUE_BUTTON = Button(SCREEN.get_width() / 2 - 175, 350, CONTINUE_IMG, 1)
 RESTART_BUTTON = Button(SCREEN.get_width() / 2 - 175, 350, RESTART_IMG, 1)
+FIGHTER_DEATH_ANIMATION_FRAMES = [
+    pygame.image.load(
+        f"{ANI_PATHS['fighter_death_frames']}{str(i).zfill(3)}.png"
+    ).convert_alpha()
+    for i in range(1, 16)
+]
 
 
 def main_menu() -> None:
@@ -493,17 +499,12 @@ def main() -> None:
         difficulty = player.score * 0.001  # Difficulty goes up as score increases
         difficulty = min(difficulty, 0.02)  # But is capped at 2% chance per frame
         # Use of random produces a percent chance for an asteroid per frame
-        'spawn_asteroids(asteroids, difficulty, player)'
+        spawn_asteroids(asteroids, difficulty, player)
 
-        difficulty = player.score * 0.001
+        difficulty = player.score * 0.000008
         if not fighter and random.random() < difficulty:
-            death_animation_frames = [
-                pygame.image.load(f"{ANI_PATHS['fighter_death_frames']}{str(i).zfill(3)}.png").convert_alpha()
-                for i in range(1, 16)
-            ]
-            
             fighter = EnemyFighter(
-                pygame.Vector2(random.randrange(50, SCREEN_WIDTH), SCREEN_HEIGHT + 100), 
+                pygame.Vector2(random.randrange(50, SCREEN_WIDTH), SCREEN_HEIGHT + 100),
                 1,
                 BASE_SPEED,
                 E_FIGHER_IMG,
@@ -512,10 +513,10 @@ def main() -> None:
                 RED_LASER,
                 RED_LASER_MASK,
                 laser_sfx,
-                death_animation_frames
+                FIGHTER_DEATH_ANIMATION_FRAMES,
             )
 
-        difficulty = player.score * 0.000001
+        difficulty = player.score * 0.000002
         if not left_enemy_boat and random.random() < difficulty:
             left_enemy_boat = EnemyBoat(
                 pygame.Vector2(-100, random.randrange(0, SCREEN_HEIGHT)),
@@ -590,7 +591,9 @@ def main() -> None:
             if fighter.is_dying:
                 fighter.update_death_animation()
             else:
-                fighter.tracking_module.seek_target(player.pos, delta_time, asteroids, SCREEN)
+                fighter.tracking_module.seek_target(
+                    player.pos, delta_time, asteroids, SCREEN
+                )
                 if fighter.has_target(player, SCREEN):
                     laser = fighter.shoot()
                     if laser:
