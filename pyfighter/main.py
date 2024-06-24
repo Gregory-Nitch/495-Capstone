@@ -27,6 +27,7 @@ from constants import (
     ASTEROID_LIST,
     SFX_PATHS,
     POWERUP_LIST,
+    ANI_PATHS
 )
 from models.hud import HUD
 from models.player import Player
@@ -492,12 +493,17 @@ def main() -> None:
         difficulty = player.score * 0.001  # Difficulty goes up as score increases
         difficulty = min(difficulty, 0.02)  # But is capped at 2% chance per frame
         # Use of random produces a percent chance for an asteroid per frame
-        spawn_asteroids(asteroids, difficulty, player)
+        'spawn_asteroids(asteroids, difficulty, player)'
 
-        difficulty = player.score * 0.000004
+        difficulty = player.score * 0.001
         if not fighter and random.random() < difficulty:
+            death_animation_frames = [
+                pygame.image.load(f"{ANI_PATHS['fighter_death_frames']}{str(i).zfill(3)}.png").convert_alpha()
+                for i in range(1, 16)
+            ]
+            
             fighter = EnemyFighter(
-                pygame.Vector2(random.randrange(50, SCREEN_WIDTH), SCREEN_HEIGHT + 100),
+                pygame.Vector2(random.randrange(50, SCREEN_WIDTH), SCREEN_HEIGHT + 100), 
                 1,
                 BASE_SPEED,
                 E_FIGHER_IMG,
@@ -506,6 +512,7 @@ def main() -> None:
                 RED_LASER,
                 RED_LASER_MASK,
                 laser_sfx,
+                death_animation_frames
             )
 
         difficulty = player.score * 0.000001
@@ -580,13 +587,19 @@ def main() -> None:
             continue
 
         if fighter:
-            fighter.tracking_module.seek_target(
-                player.pos, delta_time, asteroids, SCREEN
-            )
-            if fighter.has_target(player, SCREEN):
-                laser = fighter.shoot()
-                if laser:
-                    enemy_lasers.add(laser)
+            if fighter.is_dying:
+                fighter.update_death_animation()
+            else:
+                fighter.tracking_module.seek_target(player.pos, delta_time, asteroids, SCREEN)
+                if fighter.has_target(player, SCREEN):
+                    laser = fighter.shoot()
+                    if laser:
+                        enemy_lasers.add(laser)
+            if fighter.hp <= 0 and not fighter.is_dying:
+                fighter.start_death_animation()
+            if fighter.dead:
+                fighter.kill()
+                fighter = None
 
         if left_enemy_boat:
             left_enemy_boat.tracking_module.seek_target(
@@ -686,10 +699,6 @@ def main() -> None:
                 missile.seek(delta_time)
             else:
                 missile.pos.y -= missile.speed * delta_time
-
-        if fighter and fighter.hp <= 0:
-            fighter.kill()
-            fighter = None
 
         if left_enemy_boat and left_enemy_boat.hp <= 0:
             left_enemy_boat.kill()
