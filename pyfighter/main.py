@@ -94,7 +94,7 @@ FIGHTER_DEATH_ANIMATION_FRAMES = [
     pygame.image.load(
         f"{ANI_PATHS['fighter_death_frames']}{str(i).zfill(3)}.png"
     ).convert_alpha()
-    for i in range(1, 16)
+    for i in range(1, 14)
 ]
 BOAT_DEATH_ANIMATION_FRAMES = [
     pygame.image.load(
