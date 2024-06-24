@@ -101,7 +101,10 @@ BOAT_DEATH_ANIMATION_FRAMES = [
     ).convert_alpha()
     for i in range(1, 13)
 ]
-
+PLAYER_IDLE_FRAMES = [
+    pygame.image.load(f"{ANI_PATHS['player_idle_frames']}{str(i).zfill(3)}.png").convert_alpha()
+    for i in range(0, 20)
+]
 
 def main_menu() -> None:
     """Prints the start screen before the game begins and waits until the
@@ -448,6 +451,8 @@ def main() -> None:
         laser_hit_sfx,
         explosion_sfx,
         missile_sfx,
+        PLAYER_IDLE_FRAMES
+
     )
     hud = HUD()
     asteroids = pygame.sprite.Group()
@@ -467,6 +472,7 @@ def main() -> None:
                 running = False
 
         # Update player
+        player.update_idle_animation()
         player.update()
 
         # Draw to screen here back to front

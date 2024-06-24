@@ -6,6 +6,7 @@ from pygame.sprite import Group as SpriteGroup
 from pygame import Vector2
 from pygame.mask import Mask
 from pygame.mixer import Sound
+from pygame.surface import Surface
 from models.actor import Actor
 from models.missile import Missile
 from constants import (
@@ -35,6 +36,8 @@ class Player(Actor):
         laser_hit_sfx: Sound,
         explosion_sfx: Sound,
         missile_sfx: Sound,
+        idle_animation_frames: list[Surface]
+
     ):
         super().__init__(pos, hp, speed, ship_img, ship_mask, offset)
         self.cooldown_threshold = BASE_CANNON_COOLDOWN
@@ -54,6 +57,9 @@ class Player(Actor):
         self.laser_sfx = laser_sfx
         self.laser_hit_sfx = laser_hit_sfx
         self.explosion_sfx = explosion_sfx
+        self.idle_animation_frames = idle_animation_frames
+        self.current_frame = 0
+        self.animation_counter = 0
 
         # Attributes for glow effect
         self.glow_effect_duration = 200  # Duration in milliseconds
@@ -79,6 +85,13 @@ class Player(Actor):
             self.laser_sfx.play()
             # Setting to 1 starts timer (see cooldown_cannon())
             self.cooldown_counter = 1
+
+    def update_idle_animation(self):
+        """Update the idle animation."""
+        if self.animation_counter % 5 == 0:  # Adjust this value to change the speed
+            self.current_frame = (self.current_frame + 1) % len(self.idle_animation_frames)
+            self.img = self.idle_animation_frames[self.current_frame]
+        self.animation_counter += 1
 
     def resolve_hits(self, laser: Actor, objs: list) -> list:
         """Resolves player lasers in the game, a hit = -1 hp on target. If
