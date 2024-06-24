@@ -37,7 +37,6 @@ from models.powerup import PowerUp
 from models.enemy_fighter import EnemyFighter
 from models.enemy_boat import EnemyBoat
 from models.button import Button
-from models.explosion import Explosion
 
 
 # Pygame globals, loading of game assets
@@ -109,7 +108,9 @@ PLAYER_IDLE_FRAMES = [
     for i in range(0, 20)
 ]
 ASTEROID_EXPLOSION_FRAMES = [
-    pygame.image.load(f"{ANI_PATHS['meteor_explosion_frames']}{str(i).zfill(2)}.png").convert_alpha()
+    pygame.image.load(
+        f"{ANI_PATHS['meteor_explosion_frames']}{str(i).zfill(2)}.png"
+    ).convert_alpha()
     for i in range(0, 6)
 ]
 
@@ -322,7 +323,7 @@ def spawn_asteroids(
             BASE_SPEED + player.score * 0.75,
             ASTEROID_IMG_MAP[a_key],
             IMG_OFFSETS[a_key],
-            ASTEROID_EXPLOSION_FRAMES
+            ASTEROID_EXPLOSION_FRAMES,
         )
         asteroids.add(new_asteroid)
 
@@ -335,7 +336,6 @@ def asteroid_hp(
     explosion_sfx: pygame.mixer.Sound,
     laser_hit_sfx: pygame.mixer.Sound,
     projectile_type: int,
-    explosions: pygame.sprite.Group  # Add explosions group
 ) -> bool:
     """Resolves asteroid health actions depending on incoming type of
     projectile."""
@@ -357,7 +357,10 @@ def asteroid_hp(
 
 
 def process_killed_objects(
-    objs_to_kill: list[object], player: Player, powerups: list[pygame.sprite.Group], explosions: list[pygame.sprite.Group]
+    objs_to_kill: list[object],
+    player: Player,
+    powerups: list[pygame.sprite.Group],
+    explosions: list[pygame.sprite.Group],
 ) -> bool:
     """Randomly activates a power up processing action for each object that
     needs to be killed."""
@@ -413,7 +416,6 @@ def handle_projectile(
             explosion_sfx,
             laser_hit_sfx,
             projectile_type,
-            explosions
         )
         process_killed_objects(objs_to_kill, player, powerups, explosions)
         if projectile_type == 1:
@@ -489,7 +491,7 @@ def main() -> None:
         # Update player
         player.update_idle_animation()
 
-        #Update explosions
+        # Update explosions
         explosions.update()
 
         # Draw to screen here back to front
@@ -519,7 +521,6 @@ def main() -> None:
         for a in asteroids:
             a.draw(SCREEN)
         explosions.draw(SCREEN)  # Draw explosions
-
 
         # HUD should be last
         pygame.draw.rect(SCREEN, "black", (0, 0, SCREEN.get_width(), HUD_HEIGHT))
@@ -701,7 +702,7 @@ def main() -> None:
             laser_hit_sfx,
             0,
             lost_font,
-            explosions,  
+            explosions,
         )
         if not running:  # Prevents continuation of frame after a gameover state
             continue
