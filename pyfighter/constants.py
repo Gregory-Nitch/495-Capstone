@@ -92,6 +92,8 @@ POWERUP_LIST = [
 
 ANI_PATHS = {
     "fighter_death_frames": "./pyfighter/assets/active_sprites/enemies/enemy_deathani/enemy_death",
-    "boat_death_frames": "./pyfighter/assets/active_sprites/enemies/boat_deathani/boat_death"
+    "boat_death_frames": "./pyfighter/assets/active_sprites/enemies/boat_deathani/boat_death",
+    "player_idle_frames": "./pyfighter/assets/active_sprites/ships/player_ani/idle/player_idle-"
+
 
 }
