@@ -24,8 +24,7 @@ class EnemyFighter(Actor):
         laser_img,
         laser_mask: Mask,
         laser_sfx: Sound,
-        death_animation_frames: list[Surface]  # Add this parameter
-
+        death_animation_frames: list[Surface],  # Add this parameter
     ):
         super().__init__(pos, hp, speed, img, img_mask, offset)
         self.tracking_module = AITrackingModule(self, "fighter")
@@ -84,13 +83,17 @@ class EnemyFighter(Actor):
         # Else increase counter (gets closer to threshold)
         elif self.cooldown_counter > 0:
             self.cooldown_counter += 1
-            
+
     def start_death_animation(self):
+        """Starts the death animation frames for the fighter once killed."""
+
         self.is_dying = True
         self.current_frame = 0
         self.animation_counter = 0
-        
+
     def update_death_animation(self):
+        """Updates the death animation to the next frame as the fighter is dying."""
+
         if self.is_dying:
             if self.animation_counter % 5 == 0:  # Adjust the speed of the animation
                 self.current_frame += 1

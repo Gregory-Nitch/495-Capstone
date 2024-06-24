@@ -26,8 +26,7 @@ class EnemyBoat(Actor):
         missile_img,
         missile_mask: Mask,
         missile_sfx: Sound,
-        death_animation_frames: list[Surface]  # Add this parameter
-
+        death_animation_frames: list[Surface],  # Add this parameter
     ):
         super().__init__(pos, hp, speed, img, img_mask, offset)
         self.tracking_module = AITrackingModule(self, logic_type)
@@ -85,11 +84,16 @@ class EnemyBoat(Actor):
             return None
 
     def start_death_animation(self):
+        """Starts the death animation for the boat once it has been killed."""
+
         self.is_dying = True
         self.current_frame = 0
         self.animation_counter = 0
-        
+
     def update_death_animation(self):
+        """Iterates through the death animation frames once the boat has been
+        killed."""
+
         if self.is_dying:
             if self.animation_counter % 5 == 0:  # Adjust the speed of the animation
                 self.current_frame += 1

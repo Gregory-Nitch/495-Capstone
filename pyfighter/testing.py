@@ -384,3 +384,116 @@ def test_boat_cooldown_counters():
     assert missile is not None
     missile = test_boat.launch_missile(test_player)
     assert missile is None
+
+
+def test_enemy_fighter_has_target():
+    """Tests if the enemy fighter correctly identifies whether it has a target based on the player's
+    position."""
+
+    # Setup pygame state
+    pygame.init()
+    screen = pygame.display.set_mode((1000, 1000))
+
+    # Mock player and enemy fighter images
+    player_img = pygame.image.load(
+        "./assets/active_sprites/ships/playerShip1_orange.png"
+    ).convert_alpha()
+    fighter_img = pygame.image.load(
+        "./assets/active_sprites/Enemies/enemyBlack1.png"
+    ).convert_alpha()
+
+    # Mock player
+    player = Player(
+        pygame.Vector2(100, 100),
+        0,
+        0,
+        player_img,
+        None,
+        {"x": 0, "y": 0},
+        None,
+        None,
+        Sound("./assets/zaid_sfx/laser1.wav"),
+        None,
+        None,
+        None,
+        None,
+        Sound("./assets/zaid_sfx/missile_launch_sfx.mp3"),
+        [
+            pygame.image.load(
+                f"./assets/active_sprites/ships/player_ani/idle/player_idle-{str(i).zfill(3)}.png"
+            ).convert_alpha()
+            for i in range(0, 20)
+        ],
+    )
+
+    # Mock enemy fighter
+    enemy_fighter = EnemyFighter(
+        pygame.Vector2(100, 300),
+        0,
+        0,
+        fighter_img,
+        None,
+        {"x": 0, "y": 0},
+        None,
+        None,
+        Sound("./assets/zaid_sfx/laser1.wav"),
+        [
+            pygame.image.load(
+                f"./assets/active_sprites/enemies/enemy_deathani/enemy_death{str(i).zfill(3)}.png"
+            ).convert_alpha()
+            for i in range(1, 14)
+        ],
+    )
+
+    # Test when player is within the target area
+    player.pos = pygame.Vector2(100, 100)
+    assert enemy_fighter.has_target(player, screen) is True
+    # Test when player is out of the target area horizontally
+    player.pos = pygame.Vector2(200, 100)
+    assert enemy_fighter.has_target(player, screen) is False
+    # Test when player is out of the target area vertically
+    player.pos = pygame.Vector2(100, 200)
+    assert enemy_fighter.has_target(player, screen) is False
+
+
+def test_enemy_boat_is_on_screen():
+    """Tests to ensure the logic controling enemy boat firing properly detects
+    if the enemy boat is on the screen."""
+
+    # Setup pygame state
+    pygame.init()
+    pygame.display.set_mode((1000, 1000))
+
+    # Mock boat
+    boat_img = pygame.image.load(
+        "./assets/active_sprites/Enemies/enemyBlack4.png"
+    ).convert_alpha()
+    missle_img = pygame.image.load(
+        "./assets/active_sprites/Missiles/spaceMissiles_040.png"
+    ).convert_alpha()
+    test_boat = EnemyBoat(
+        pygame.Vector2(100, 100),
+        0,
+        0,
+        boat_img,
+        None,
+        "left_boat",
+        {"x": 0, "y": 0},
+        missle_img,
+        None,
+        Sound("./assets/zaid_sfx/missile_launch_sfx.mp3"),
+        [
+            pygame.image.load(
+                f"./assets/active_sprites/enemies/boat_deathani/boat_death{str(i).zfill(3)}.png"
+            ).convert_alpha()
+            for i in range(1, 13)
+        ],
+    )
+
+    # Boat should be on screen
+    assert test_boat.is_on_screen(1000, 1000) is True
+    # Move boat off screen
+    test_boat.pos.x = -300
+    test_boat.pos.y = -300
+    # Check off screen state
+    assert test_boat.is_on_screen(1000, 1000) is False
