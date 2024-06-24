@@ -629,12 +629,16 @@ def main() -> None:
                     missile = left_enemy_boat.launch_missile(player)
                     if missile:
                         enemy_missiles.add(missile)
-            if left_enemy_boat and left_enemy_boat.hp <= 0 and not left_enemy_boat.is_dying:
+            if (
+                left_enemy_boat
+                and left_enemy_boat.hp <= 0
+                and not left_enemy_boat.is_dying
+            ):
                 left_enemy_boat.start_death_animation()
             if left_enemy_boat.dead:
                 left_enemy_boat.kill()
                 left_enemy_boat = None
-            
+
         if right_enemy_boat:
             if right_enemy_boat.is_dying:
                 right_enemy_boat.update_death_animation()
@@ -646,12 +650,15 @@ def main() -> None:
                     missile = right_enemy_boat.launch_missile(player)
                     if missile:
                         enemy_missiles.add(missile)
-            if right_enemy_boat and right_enemy_boat.hp <= 0 and not right_enemy_boat.is_dying:
+            if (
+                right_enemy_boat
+                and right_enemy_boat.hp <= 0
+                and not right_enemy_boat.is_dying
+            ):
                 right_enemy_boat.start_death_animation()
             if right_enemy_boat.dead:
                 right_enemy_boat.kill()
                 right_enemy_boat = None
-                
 
         for powerup in powerups:
             if powerup.pos.y - PLAYER_BUFFER > SCREEN.get_height():
@@ -733,8 +740,6 @@ def main() -> None:
                 missile.seek(delta_time)
             else:
                 missile.pos.y -= missile.speed * delta_time
-
-        
 
         # Need to empty objs kill list for next frame
         objs_to_kill.clear()
