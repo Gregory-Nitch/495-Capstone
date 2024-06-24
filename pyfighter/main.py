@@ -95,6 +95,12 @@ FIGHTER_DEATH_ANIMATION_FRAMES = [
     ).convert_alpha()
     for i in range(1, 16)
 ]
+BOAT_DEATH_ANIMATION_FRAMES = [
+    pygame.image.load(
+        f"{ANI_PATHS['boat_death_frames']}{str(i).zfill(3)}.png"
+    ).convert_alpha()
+    for i in range(1, 13)
+]
 
 
 def main_menu() -> None:
@@ -529,6 +535,7 @@ def main() -> None:
                 RED_MISSILE,
                 RED_MISSILE_MASK,
                 missile_sfx,
+                BOAT_DEATH_ANIMATION_FRAMES,
             )
 
         if not right_enemy_boat and random.random() < difficulty:
@@ -543,6 +550,7 @@ def main() -> None:
                 RED_MISSILE,
                 RED_MISSILE_MASK,
                 missile_sfx,
+                BOAT_DEATH_ANIMATION_FRAMES,
             )
 
         if fighter:
@@ -605,22 +613,39 @@ def main() -> None:
                 fighter = None
 
         if left_enemy_boat:
-            left_enemy_boat.tracking_module.seek_target(
-                player.pos, delta_time, asteroids, SCREEN
-            )
-            if left_enemy_boat.is_on_screen(SCREEN_WIDTH, SCREEN_HEIGHT):
-                missile = left_enemy_boat.launch_missile(player)
-                if missile:
-                    enemy_missiles.add(missile)
-
+            if left_enemy_boat.is_dying:
+                left_enemy_boat.update_death_animation()
+            else:
+                left_enemy_boat.tracking_module.seek_target(
+                    player.pos, delta_time, asteroids, SCREEN
+                )
+                if left_enemy_boat.is_on_screen(SCREEN_WIDTH, SCREEN_HEIGHT):
+                    missile = left_enemy_boat.launch_missile(player)
+                    if missile:
+                        enemy_missiles.add(missile)
+            if left_enemy_boat and left_enemy_boat.hp <= 0 and not left_enemy_boat.is_dying:
+                left_enemy_boat.start_death_animation()
+            if left_enemy_boat.dead:
+                left_enemy_boat.kill()
+                left_enemy_boat = None
+            
         if right_enemy_boat:
-            right_enemy_boat.tracking_module.seek_target(
-                player.pos, delta_time, asteroids, SCREEN
-            )
-            if right_enemy_boat.is_on_screen(SCREEN_WIDTH, SCREEN_HEIGHT):
-                missile = right_enemy_boat.launch_missile(player)
-                if missile:
-                    enemy_missiles.add(missile)
+            if right_enemy_boat.is_dying:
+                right_enemy_boat.update_death_animation()
+            else:
+                right_enemy_boat.tracking_module.seek_target(
+                    player.pos, delta_time, asteroids, SCREEN
+                )
+                if right_enemy_boat.is_on_screen(SCREEN_WIDTH, SCREEN_HEIGHT):
+                    missile = right_enemy_boat.launch_missile(player)
+                    if missile:
+                        enemy_missiles.add(missile)
+            if right_enemy_boat and right_enemy_boat.hp <= 0 and not right_enemy_boat.is_dying:
+                right_enemy_boat.start_death_animation()
+            if right_enemy_boat.dead:
+                right_enemy_boat.kill()
+                right_enemy_boat = None
+                
 
         for powerup in powerups:
             if powerup.pos.y - PLAYER_BUFFER > SCREEN.get_height():
@@ -703,13 +728,7 @@ def main() -> None:
             else:
                 missile.pos.y -= missile.speed * delta_time
 
-        if left_enemy_boat and left_enemy_boat.hp <= 0:
-            left_enemy_boat.kill()
-            left_enemy_boat = None
-
-        if right_enemy_boat and right_enemy_boat.hp <= 0:
-            right_enemy_boat.kill()
-            right_enemy_boat = None
+        
 
         # Need to empty objs kill list for next frame
         objs_to_kill.clear()
