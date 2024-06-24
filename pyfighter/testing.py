@@ -48,6 +48,12 @@ def test_cooldown_counters():
         None,
         None,
         Sound("./assets/zaid_sfx/missile_launch_sfx.mp3"),
+        [
+            pygame.image.load(
+                f"./assets/active_sprites/ships/player_ani/idle/player_idle-{str(i).zfill(3)}.png"
+            ).convert_alpha()
+            for i in range(0, 20)
+        ],
     )
 
     # Test counters
@@ -142,6 +148,12 @@ def test_resolve_hits():
         Sound("./assets/zaid_sfx/Hit_4.wav"),
         None,
         Sound("./assets/zaid_sfx/missile_launch_sfx.mp3"),
+        [
+            pygame.image.load(
+                f"./assets/active_sprites/ships/player_ani/idle/player_idle-{str(i).zfill(3)}.png"
+            ).convert_alpha()
+            for i in range(0, 20)
+        ],
     )
 
     # Load asteroid
@@ -246,6 +258,12 @@ def test_powerup_pickup():
         None,
         None,
         Sound("./assets/zaid_sfx/missile_launch_sfx.mp3"),
+        [
+            pygame.image.load(
+                f"./assets/active_sprites/ships/player_ani/idle/player_idle-{str(i).zfill(3)}.png"
+            ).convert_alpha()
+            for i in range(0, 20)
+        ],
     )
 
     fire_rate_powerup.pickup(test_player)
@@ -254,6 +272,7 @@ def test_powerup_pickup():
     assert test_player.cooldown_threshold == 39
     assert test_player.speed == 320
     assert test_player.missile_count == 3
+
 
 def test_fighter_cooldown_counters():
     """Tests if the enemy's cannon cooldown counter is properly set after
@@ -280,6 +299,12 @@ def test_fighter_cooldown_counters():
         laser_img,
         None,
         Sound("./assets/zaid_sfx/laser1.wav"),
+        [
+            pygame.image.load(
+                f"./assets/active_sprites/enemies/enemy_deathani/enemy_death{str(i).zfill(3)}.png"
+            ).convert_alpha()
+            for i in range(1, 14)
+        ],
     )
 
     # Test counters
@@ -289,7 +314,8 @@ def test_fighter_cooldown_counters():
     assert laser is not None
     laser = test_fighter.shoot()
     assert laser is None
-    
+
+
 def test_boat_cooldown_counters():
     """Tests if the enemy's cannon cooldown counter is properly set after
     firing their cannon."""
@@ -316,8 +342,14 @@ def test_boat_cooldown_counters():
         missle_img,
         None,
         Sound("./assets/zaid_sfx/missile_launch_sfx.mp3"),
+        [
+            pygame.image.load(
+                f"./assets/active_sprites/enemies/boat_deathani/boat_death{str(i).zfill(3)}.png"
+            ).convert_alpha()
+            for i in range(1, 13)
+        ],
     )
-    
+
     # Mock player
     player_img = pygame.image.load(
         "./assets/active_sprites/ships/playerShip1_orange.png"
@@ -337,6 +369,12 @@ def test_boat_cooldown_counters():
         None,
         None,
         Sound("./assets/zaid_sfx/missile_launch_sfx.mp3"),
+        [
+            pygame.image.load(
+                f"./assets/active_sprites/ships/player_ani/idle/player_idle-{str(i).zfill(3)}.png"
+            ).convert_alpha()
+            for i in range(0, 20)
+        ],
     )
 
     # Test counters
@@ -345,4 +383,4 @@ def test_boat_cooldown_counters():
     assert test_boat.missile_cooldown_counter == 1
     assert missile is not None
     missile = test_boat.launch_missile(test_player)
-    assert missile is None    
+    assert missile is None
