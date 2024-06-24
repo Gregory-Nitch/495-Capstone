@@ -5,6 +5,10 @@ An endless runner in spaaaacceee!
 # Credits!
 
 Thanks to www.kenney.nl for the great creative commons assets!
+Thanks to ansimuz (Luis Zuno) for some pixel art assets!
+Thanks to Deva for some 8-bit sound effects!
+Thanks to CodeManu for music!
+Thanks to JROB774 (Joshua Robertson) for explosion sprites!
 
 ## Authors
 
