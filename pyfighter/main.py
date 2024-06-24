@@ -37,6 +37,7 @@ from models.powerup import PowerUp
 from models.enemy_fighter import EnemyFighter
 from models.enemy_boat import EnemyBoat
 from models.button import Button
+from models.explosion import Explosion
 
 
 # Pygame globals, loading of game assets
@@ -106,6 +107,10 @@ PLAYER_IDLE_FRAMES = [
         f"{ANI_PATHS['player_idle_frames']}{str(i).zfill(3)}.png"
     ).convert_alpha()
     for i in range(0, 20)
+]
+ASTEROID_EXPLOSION_FRAMES = [
+    pygame.image.load(f"{ANI_PATHS['meteor_explosion_frames']}{str(i).zfill(2)}.png").convert_alpha()
+    for i in range(0, 6)
 ]
 
 
@@ -317,6 +322,7 @@ def spawn_asteroids(
             BASE_SPEED + player.score * 0.75,
             ASTEROID_IMG_MAP[a_key],
             IMG_OFFSETS[a_key],
+            ASTEROID_EXPLOSION_FRAMES
         )
         asteroids.add(new_asteroid)
 
@@ -329,6 +335,7 @@ def asteroid_hp(
     explosion_sfx: pygame.mixer.Sound,
     laser_hit_sfx: pygame.mixer.Sound,
     projectile_type: int,
+    explosions: pygame.sprite.Group  # Add explosions group
 ) -> bool:
     """Resolves asteroid health actions depending on incoming type of
     projectile."""
@@ -350,12 +357,15 @@ def asteroid_hp(
 
 
 def process_killed_objects(
-    objs_to_kill: list[object], player: Player, powerups: list[pygame.sprite.Group]
+    objs_to_kill: list[object], player: Player, powerups: list[pygame.sprite.Group], explosions: list[pygame.sprite.Group]
 ) -> bool:
     """Randomly activates a power up processing action for each object that
     needs to be killed."""
 
     for obj in objs_to_kill:
+        if isinstance(obj, Asteroid):
+            explosion = obj.explode()
+            explosions.add(explosion)
         if random.random() < 0.3:  # Randomize drop chance
             new_powerup = proccess_obj_for_powerup(obj, player)
             powerups.add(new_powerup)
@@ -372,6 +382,7 @@ def handle_projectile(
     laser_hit_sfx: pygame.mixer.Sound,
     projectile_type: int,
     lost_font: pygame.font,
+    explosions: pygame.sprite.Group,
 ) -> tuple[bool, bool]:
     """Reloves hits against the player and asteroids from enemy projectiles
     based on type. Also calls gameover state logic and returns two booleans
@@ -402,8 +413,9 @@ def handle_projectile(
             explosion_sfx,
             laser_hit_sfx,
             projectile_type,
+            explosions
         )
-        process_killed_objects(objs_to_kill, player, powerups)
+        process_killed_objects(objs_to_kill, player, powerups, explosions)
         if projectile_type == 1:
             if fire.target:
                 fire.seek(delta_time)
@@ -461,6 +473,7 @@ def main() -> None:
     powerups = pygame.sprite.Group()
     enemy_lasers = pygame.sprite.Group()
     enemy_missiles = pygame.sprite.Group()
+    explosions = pygame.sprite.Group()
     fighter = None
     left_enemy_boat = None
     right_enemy_boat = None
@@ -476,11 +489,14 @@ def main() -> None:
         # Update player
         player.update_idle_animation()
 
+        #Update explosions
+        explosions.update()
+
         # Draw to screen here back to front
         SCREEN.blit(BG_IMG, (0, 60))  # Background first, 60px down for hud
 
         # group assets
-        sprite_groups = [asteroids, enemy_lasers, enemy_missiles]
+        sprite_groups = [asteroids, enemy_lasers, enemy_missiles, explosions]
         enemies = [fighter, left_enemy_boat, right_enemy_boat]
         # Actors drawn here
         for p in powerups:
@@ -502,6 +518,8 @@ def main() -> None:
         player.draw(SCREEN)
         for a in asteroids:
             a.draw(SCREEN)
+        explosions.draw(SCREEN)  # Draw explosions
+
 
         # HUD should be last
         pygame.draw.rect(SCREEN, "black", (0, 0, SCREEN.get_width(), HUD_HEIGHT))
@@ -683,6 +701,7 @@ def main() -> None:
             laser_hit_sfx,
             0,
             lost_font,
+            explosions,  
         )
         if not running:  # Prevents continuation of frame after a gameover state
             continue
@@ -705,6 +724,7 @@ def main() -> None:
             laser_hit_sfx,
             1,
             lost_font,
+            explosions,
         )
         if not running:  # Prevents continuation of frame after a gameover state
             continue
@@ -723,7 +743,7 @@ def main() -> None:
             objs_to_kill += player.resolve_hits(
                 laser, [fighter, left_enemy_boat, right_enemy_boat]
             )
-            process_killed_objects(objs_to_kill, player, powerups)
+            process_killed_objects(objs_to_kill, player, powerups, explosions)
             laser.pos.y -= laser.speed * delta_time
 
         # Need to empty objs to kill for next iteration
@@ -736,7 +756,7 @@ def main() -> None:
             objs_to_kill += player.resolve_missiles(
                 missile, [fighter, left_enemy_boat, right_enemy_boat]
             )
-            process_killed_objects(objs_to_kill, player, powerups)
+            process_killed_objects(objs_to_kill, player, powerups, explosions)
             if missile.target:
                 missile.seek(delta_time)
             else:
