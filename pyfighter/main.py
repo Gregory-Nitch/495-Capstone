@@ -533,7 +533,7 @@ def main() -> None:
         # Use of random produces a percent chance for an asteroid per frame
         spawn_asteroids(asteroids, difficulty, player)
 
-        difficulty = player.score * 0.00008
+        difficulty = player.score * 0.00004
         if not fighter and random.random() < difficulty:
             fighter = EnemyFighter(
                 pygame.Vector2(random.randrange(50, SCREEN_WIDTH), SCREEN_HEIGHT + 100),
@@ -548,7 +548,7 @@ def main() -> None:
                 FIGHTER_DEATH_ANIMATION_FRAMES,
             )
 
-        difficulty = player.score * 0.00002
+        difficulty = player.score * 0.00001
         if not left_enemy_boat and random.random() < difficulty:
             left_enemy_boat = EnemyBoat(
                 pygame.Vector2(-100, random.randrange(0, SCREEN_HEIGHT)),
