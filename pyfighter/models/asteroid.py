@@ -25,4 +25,6 @@ class Asteroid(Actor):
         # randomly chosen
 
     def explode(self):
+        """Provides an explosion animation object for the asteroid."""
+
         return Explosion(self.pos, self.explosion_frames)
