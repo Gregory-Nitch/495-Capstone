@@ -609,6 +609,9 @@ def main() -> None:
                         [asteroids, enemy_lasers, enemy_missiles],
                         [fighter, left_enemy_boat, right_enemy_boat],
                     )
+                    fighter = None
+                    left_enemy_boat = None
+                    right_enemy_boat = None
             if fighter and Actor.resolve_collision(fighter, a):
                 fighter.pos.y += (a.speed + fighter.speed) * delta_time
             if left_enemy_boat and Actor.resolve_collision(left_enemy_boat, a):
@@ -710,6 +713,9 @@ def main() -> None:
         # check for restart
         if reset:
             start_time = reset_game_state(player, sprite_groups, enemies)
+            fighter = None
+            left_enemy_boat = None
+            right_enemy_boat = None
         # Need to empty objs to kill for next iteration
         objs_to_kill.clear()
 
@@ -733,6 +739,9 @@ def main() -> None:
         # check for restart
         if reset:
             start_time = reset_game_state(player, sprite_groups, enemies)
+            fighter = None
+            left_enemy_boat = None
+            right_enemy_boat = None
         # Need to empty objs to kill for next iteration
         objs_to_kill.clear()
 
