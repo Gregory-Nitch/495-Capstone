@@ -50,9 +50,9 @@ IMG_PATHS = {
     "meteorG4": "./assets/active_sprites/Meteors/meteorGrey_big4.png",
     "blueLaser": "./assets/active_sprites/Lasers/laserBlue07.png",
     "blueMissile": "./assets/active_sprites/Missiles/spaceMissiles_001.png",
-    "fire_rate": "./assets/active_sprites/Power-ups/powerupBlue_star.png",
-    "speed": "./assets/active_sprites/Power-ups/powerupGreen_star.png",
-    "missiles": "./assets/active_sprites/Power-ups/powerupRed_star.png",
+    "fire_rate": "./assets/active_sprites/Power-Ups/powerupBlue_star.png",
+    "speed": "./assets/active_sprites/Power-Ups/powerupGreen_star.png",
+    "missiles": "./assets/active_sprites/Power-Ups/powerupRed_star.png",
     "enemy_fighter": "./assets/active_sprites/Enemies/enemyBlack1.png",
     "enemy_boat": "./assets/active_sprites/Enemies/enemyBlack4.png",
     "red_laser": "./assets/active_sprites/Lasers/laserRed07.png",
@@ -91,8 +91,8 @@ POWERUP_LIST = [
 ]
 
 ANI_PATHS = {
-    "fighter_death_frames": "./assets/active_sprites/enemies/enemy_deathani/enemy_death",
-    "boat_death_frames": "./assets/active_sprites/enemies/boat_deathani/boat_death",
+    "fighter_death_frames": "./assets/active_sprites/Enemies/enemy_deathani/enemy_death",
+    "boat_death_frames": "./assets/active_sprites/Enemies/boat_deathani/boat_death",
     "player_idle_frames": "./assets/active_sprites/ships/player_ani/idle/player_idle-",
-    "meteor_explosion_frames": "./assets/active_sprites/explosions/explosion",
+    "meteor_explosion_frames": "./assets/active_sprites/Explosions/explosion",
 }
